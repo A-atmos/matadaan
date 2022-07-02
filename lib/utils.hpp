@@ -25,16 +25,17 @@
  */
 std::string getMerkleRoot(const std::vector<std::string> &merkle) {
     std::cout<<"\nFinding Merkle Root.... \n";
-    // If this is the genesis block, return ""
+    // If the merkel is empty, return ""
     if (merkle.empty())
         return "";
-    // If it is the block just next to the genesis block i.e. the first block with actual data
-    // Return the sha256 hash of the merkel of the genesis block
+    // If it is the genesis block i.e. the initialization block
+    // return the sha256 hash of the merkel of the genesis block
+    // which is "Genesis Block"
     else if (merkle.size() == 1){
         return sha256(merkle[0]);
     }
     /*
-     * For all other blocks except the above-mentioned blocks
+     * For all other blocks except genesis block
      *
     */
     std::vector<std::string> new_merkle = merkle;
