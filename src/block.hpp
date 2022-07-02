@@ -6,6 +6,7 @@
 #define MATADAAN_BLOCK_HPP
 
 
+#include <utility>
 #include <vector>
 #include <string>
 #include <iostream>
@@ -17,7 +18,7 @@ public:
 
     std::string getPrevHash();
     std::string getHash();
-    int getIndex();
+    int getIndex() const;
     std::vector<std::string> getData();
     void toString();
 //    bool validProof(int last_proof, int proof);
@@ -34,13 +35,15 @@ private:
 
 Block::Block(int index, std::string prevHash, std::string Hash, std::string nonce, std::vector<std::string> data) {
     this->index = index;
-    this->prevHash = prevHash;
-    this->blockHash = Hash;
-    this-> nonce = nonce;
-    this->data = data;
+
+    // Since the below are stings, std::move gives an efficient transfer of data
+    this->prevHash = std::move(prevHash);
+    this->blockHash = std::move(Hash);
+    this-> nonce = std::move(nonce);
+    this->data = std::move(data);
 }
 
-int Block::getIndex() {
+int Block::getIndex() const {
     return this->index;
 }
 
