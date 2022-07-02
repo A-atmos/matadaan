@@ -1,6 +1,6 @@
 # Matadaan: A Decentralized Voting System
 
-> A PoC of BlockChain Technology
+> A PoC of Blockchain Technology
 
 
 ## Initialization:
@@ -10,9 +10,7 @@ It uses the concepts of OOP in C++, BlockChain Technology and the general concep
 
 *Preferred IDE: **CLion*** 
 
-**Use CMakeLists.txt to build**
-
-Use [build.sh](./build.sh) to build the Project.
+**Use CMakeLists.txt or [build.sh](./build.sh) to build the Project.**
 ## External Libraries Used:
 - [openssl](https://github.com/openssl/openssl) for hashing
 - [gtkmm](http://www.gtkmm.org/en/documentation.html) for GUI
