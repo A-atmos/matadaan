@@ -9,10 +9,11 @@
 #include <utility>
 #include <vector>
 #include <iostream>
-#include "sha256.hpp"
+#include "../lib/sha256.hpp"
 
 #include <memory>
 #include <stdexcept>
+#include "blockchain.hpp"
 
 class blockUtils{
 public:
@@ -88,13 +89,13 @@ std::string blockUtils::getMerkleRoot(const std::vector<std::string> &merkle) {
 std::pair<std::string,std::string> blockUtils::findHash(int index,const std::string& prevHash, std::vector<std::string> &merkle) {
     std::string header = std::to_string(index) + prevHash + getMerkleRoot(merkle);
     unsigned int nonce=0;
-    while(1) {
+    while(true) {
         std::string blockHash = sha256(header + std::to_string(nonce));
         if (blockHash.substr(0,2) == "00"){
-
             return std::make_pair(blockHash,std::to_string(nonce));
         }
         nonce++;
+        if(nonce>=1000000)break;
     }
     return std::make_pair("fail","fail");
 }
@@ -112,21 +113,28 @@ void blockUtils::print_hex(const char *label, const uint8_t *v, size_t len) {
 
 class voteUtils{
 public:
-    static bool alreadyVoted(const std::string& voterHash,vector<unique_ptr<Block> > blockchain);
-    static bool isValidVoter(const std::string& voterHash,vector<unique_ptr<Block> > blockchain);
+    static bool alreadyVoted(const std::string& voterHash,nlohmann::json blockchain);
+    static bool isValidVoter(const std::string& voterHash,nlohmann::json blockchain);
 };
 
 
-bool voteUtils::alreadyVoted(const std::string& voterHash, vector<unique_ptr<Block>> blockchain) {
-    for(int i=1;i<blockchain.size();i++){
-        if(blockchain[i]->toJson()["data"]["id"] == voterHash){
+bool voteUtils::alreadyVoted(const std::string& voterHash,nlohmann::json blockchain) {
+//    std::cout<<blockchain;
+    for(int i=1;i<blockchain["length"].get<int>();i++) {
+//        std::cout<<blockchain["data"][i]["data"][1]<<endl;
+        if(blockchain["data"][i]["data"][0] == voterHash){
             return true;
         }
     }
+
     return false;
 }
 
-bool voteUtils::isValidVoter(const std::string& voterHash,vector<unique_ptr<Block> > blockchain){
+/*
+ * Check if the voter has  not voted and if the voter is in the database
+ * return true if satisfies above condition else return false
+*/
+bool voteUtils::isValidVoter(const std::string& voterHash,nlohmann::json blockchain){
     if(!alreadyVoted(voterHash,std::move(blockchain))){
         return true;
     }
