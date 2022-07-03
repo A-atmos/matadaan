@@ -6,6 +6,7 @@
 #define MATADAAN_UTILS_HPP
 
 #include <string>
+#include <utility>
 #include <vector>
 #include <iostream>
 #include "sha256.hpp"
@@ -13,6 +14,12 @@
 #include <memory>
 #include <stdexcept>
 
+class blockUtils{
+public:
+    static std::string getMerkleRoot(const std::vector<std::string> &merkle);
+    static std::pair<std::string,std::string> findHash(int index,const std::string& prevHash, std::vector<std::string> &merkle);
+    static void print_hex(const char *label, const uint8_t *v, size_t len);
+};
 /*
      * merkelRoot is the unique hash which includes all the previousHash to generate a new hash
      * which is different for every block as every block has different number and list of previousHashes
@@ -23,7 +30,7 @@
      * This is a time-consuming step, and it is responsible for making blockchain technology secure
      * as it goes on increasing.
  */
-std::string getMerkleRoot(const std::vector<std::string> &merkle) {
+std::string blockUtils::getMerkleRoot(const std::vector<std::string> &merkle) {
     std::cout<<"\nFinding Merkle Root.... \n";
     // If the merkel is empty, return ""
     if (merkle.empty())
@@ -70,7 +77,6 @@ std::string getMerkleRoot(const std::vector<std::string> &merkle) {
 
 }
 
-
 //
 // Basically calculate a legit hash and getting a nonce(number-only-used-once) of the calculated has
 // The "nonce" is used later to check if the hash is legit
@@ -79,22 +85,21 @@ std::string getMerkleRoot(const std::vector<std::string> &merkle) {
  * SHA256(str(index)+str(previousHash)+str(merkelRoot)+str(nonce))
  * merkelRoot -> A hash which is different for every block and depends on the merkel(list of hashes)
 */
-std::pair<std::string,std::string> findHash(int index,const std::string& prevHash, std::vector<std::string> &merkle) {
+std::pair<std::string,std::string> blockUtils::findHash(int index,const std::string& prevHash, std::vector<std::string> &merkle) {
     std::string header = std::to_string(index) + prevHash + getMerkleRoot(merkle);
-    unsigned int nonce;
-    for (nonce = 0; nonce < 100000; nonce++ ) {
+    unsigned int nonce=0;
+    while(1) {
         std::string blockHash = sha256(header + std::to_string(nonce));
         if (blockHash.substr(0,2) == "00"){
-            // cout << "nonce: " << nonce;
-            // cout << "header: " << header;
+
             return std::make_pair(blockHash,std::to_string(nonce));
         }
+        nonce++;
     }
     return std::make_pair("fail","fail");
 }
 
-
-void print_hex(const char *label, const uint8_t *v, size_t len) {
+void blockUtils::print_hex(const char *label, const uint8_t *v, size_t len) {
     size_t i;
 
     printf("%s: ", label);
@@ -102,6 +107,30 @@ void print_hex(const char *label, const uint8_t *v, size_t len) {
         printf("%02x", v[i]);
     }
     printf("\n");
+}
+
+
+class voteUtils{
+public:
+    static bool alreadyVoted(const std::string& voterHash,vector<unique_ptr<Block> > blockchain);
+    static bool isValidVoter(const std::string& voterHash,vector<unique_ptr<Block> > blockchain);
+};
+
+
+bool voteUtils::alreadyVoted(const std::string& voterHash, vector<unique_ptr<Block>> blockchain) {
+    for(int i=1;i<blockchain.size();i++){
+        if(blockchain[i]->toJson()["data"]["id"] == voterHash){
+            return true;
+        }
+    }
+    return false;
+}
+
+bool voteUtils::isValidVoter(const std::string& voterHash,vector<unique_ptr<Block> > blockchain){
+    if(!alreadyVoted(voterHash,std::move(blockchain))){
+        return true;
+    }
+    return false;
 }
 
 #endif //MATADAAN_UTILS_HPP
