@@ -14,4 +14,5 @@ It uses the concepts of OOP in C++, BlockChain Technology and the general concep
 ## External Libraries Used:
 - [openssl](https://github.com/openssl/openssl) for hashing
 - [gtkmm](http://www.gtkmm.org/en/documentation.html) for GUI
-
+- [json.hh](https://github.com/nlohmann/json) for processing json data for the REST API
+- 
