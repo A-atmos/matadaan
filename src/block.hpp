@@ -23,7 +23,7 @@ public:
     void toString();
 //    bool validProof(int last_proof, int proof);
 //    int proofOfWork(int last_proof);
-    nlohmann::json toJson(); // needs to include json.hpp which will be created later for json parsing
+    nlohmann::json toJson(); // needs to include json.hpp which will be created later for json serialization/deserialization
 
 private:
     int index;
