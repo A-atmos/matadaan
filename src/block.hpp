@@ -23,7 +23,7 @@ public:
     void toString();
 //    bool validProof(int last_proof, int proof);
 //    int proofOfWork(int last_proof);
-    //json toJson(void); // needs to include json.hpp which will be created later for json parsering
+    nlohmann::json toJson(); // needs to include json.hpp which will be created later for json parsing
 
 private:
     int index;
@@ -68,4 +68,14 @@ void Block::toString() {
     std::cout<<"\n-------------------------------\n";
 }
 
+nlohmann::json Block::toJson() {
+    nlohmann::json jsonData;
+    jsonData["index"] = this->index;
+    jsonData["hash"] = this->blockHash;
+    jsonData["nonce"] = this->nonce;
+    jsonData["data"] = this->data;
+    jsonData["prevHash"] = this->prevHash;
+
+    return jsonData;
+}
 #endif //MATADAAN_BLOCK_HPP
