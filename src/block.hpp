@@ -10,7 +10,7 @@
 #include <vector>
 #include <string>
 #include <iostream>
-#include "../lib/json.hh"
+#include "../lib/json.hpp"
 
 class Block {
 public:
