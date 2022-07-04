@@ -15,12 +15,12 @@
 #include <stdexcept>
 #include "blockchain.hpp"
 
-class blockUtils{
-public:
+namespace blockUtils{
     static std::string getMerkleRoot(const std::vector<std::string> &merkle);
     static std::pair<std::string,std::string> findHash(int index,const std::string& prevHash, std::vector<std::string> &merkle);
     static void print_hex(const char *label, const uint8_t *v, size_t len);
-};
+}
+
 /*
      * merkelRoot is the unique hash which includes all the previousHash to generate a new hash
      * which is different for every block as every block has different number and list of previousHashes
