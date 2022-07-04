@@ -5,6 +5,9 @@
 #ifndef MATADAAN_UTILS_HPP
 #define MATADAAN_UTILS_HPP
 
+#pragma once
+
+
 #include <string>
 #include <utility>
 #include <vector>
@@ -40,7 +43,7 @@ std::string blockUtils::getMerkleRoot(const std::vector<std::string> &merkle) {
     // return the sha256 hash of the merkel of the genesis block
     // which is "Genesis Block"
     else if (merkle.size() == 1){
-        return sha256(merkle[0]);
+        return hash::sha256(merkle[0]);
     }
     /*
      * For all other blocks except genesis block
@@ -65,9 +68,9 @@ std::string blockUtils::getMerkleRoot(const std::vector<std::string> &merkle) {
          * and is unique for every block.
          */
         for (int i=0; i < new_merkle.size(); i += 2){
-            std::string var1 = sha256(new_merkle[i]);
-            std::string var2 = sha256(new_merkle[i+1]);
-            std::string hash = sha256(var1+var2);
+            std::string var1 = hash::sha256(new_merkle[i]);
+            std::string var2 = hash::sha256(new_merkle[i+1]);
+            std::string hash = hash::sha256(var1+var2);
             // printf("---hash(hash(%s), hash(%s)) => %s\n",new_merkle[0].c_str(),new_merkle[1].c_str(),hash.c_str());
             result.push_back(hash);
         }
@@ -90,7 +93,7 @@ std::pair<std::string,std::string> blockUtils::findHash(int index,const std::str
     std::string header = std::to_string(index) + prevHash + getMerkleRoot(merkle);
     unsigned int nonce=0;
     while(true) {
-        std::string blockHash = sha256(header + std::to_string(nonce));
+        std::string blockHash = hash::sha256(header + std::to_string(nonce));
         if (blockHash.substr(0,2) == "00"){
             return std::make_pair(blockHash,std::to_string(nonce));
         }
