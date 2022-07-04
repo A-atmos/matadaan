@@ -5,6 +5,8 @@
 #ifndef MATADAAN_BLOCK_HPP
 #define MATADAAN_BLOCK_HPP
 
+#pragma once
+
 
 #include <utility>
 #include <vector>

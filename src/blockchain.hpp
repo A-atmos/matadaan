@@ -5,15 +5,17 @@
 #ifndef MATADAAN_BLOCKCHAIN_HPP
 #define MATADAAN_BLOCKCHAIN_HPP
 
+#pragma once
+
 #include <iostream>
 #include <vector>
 #include <string>
 #include <memory>
+#include <wsman.h>
 #include "block.hpp"
 #include "utils.hpp"
 #include "../lib/json.hpp"
 
-using namespace std;
 
 //
 
@@ -21,17 +23,17 @@ class Blockchain{
 public:
     explicit Blockchain(int genesis =1);
     Block getBlock(int index);
-    int addBlock(int index, string prevHash, string hash, string nonce, vector<string> &merkle);
+    int addBlock(int index, const std::string& prevHash, std::string hash, std::string nonce, std::vector<std::string> &merkle);
     int numOfBlocks();
-    string getLatestBlockHash();
-    string jsonDump();
+    std::string getLatestBlockHash();
+    std::string jsonDump();
     int replaceChain(nlohmann::json chain);
     nlohmann::json toJson();
 private:
     // A dynamic arrays of block which can resize itself is stored as blockchain
     // Vector used as it fulfills the above criteria and is easy to get the last Block of the chain
 
-    vector<unique_ptr<Block> > blockchain;
+    std::vector<std::unique_ptr<Block> > blockchain;
 };
 
 
@@ -45,9 +47,9 @@ Blockchain::Blockchain(int genesis) {
     */
     if (genesis==0){
         // Initializing a vector of strings
-        vector<string> v;
+        std::vector<std::string> v;
         // Adding a string "Genesis Block" to the vector
-        v.push_back("Genesis Block");
+        v.emplace_back("Genesis Block");
 
         // Generating the Hash of the block and nonce of the first block,
         // First block has previous block hash as "00000000000000" and index 0
@@ -62,7 +64,7 @@ Blockchain::Blockchain(int genesis) {
          *
          *  this -> blockchain is a vector of blocks which will be adding blocks into it.
          */
-        this -> blockchain.push_back(std::make_unique<Block>(0,string("0000000000"),hash_nonce_pair.first,hash_nonce_pair.second,v));
+        this -> blockchain.push_back(std::make_unique<Block>(0,std::string("0000000000"),hash_nonce_pair.first,hash_nonce_pair.second,v));
         std::cout<<"Created blockchain!\n";
     }
 }
@@ -76,22 +78,22 @@ Block Blockchain::getBlock(int index){
             return *(blockchain[i]);
         }
     }
-    throw invalid_argument("Index does not exist.");
-};
+    throw std::invalid_argument("Index does not exist.");
+}
 
 /*
  * After Calculating the hash of new block, it is used to validate the block and
  * add the new block to the chain
 */
 
-int Blockchain::addBlock(int index, string prevHash, string hash, string nonce, vector<string> &merkle) {
-    string header = to_string(index) + prevHash + blockUtils::getMerkleRoot(merkle) + nonce;
-    if ( (!sha256(header).compare(hash)) && (hash.substr(0,2) == "00" ) && (index == blockchain.size())) {
+int Blockchain::addBlock(int index, const std::string& prevHash, std::string hash, std::string nonce, std::vector<std::string> &merkle) {
+    std::string header = std::to_string(index) + prevHash + blockUtils::getMerkleRoot(merkle) + nonce;
+    if ( (!(hash::sha256(header).compare(hash))) && (hash.substr(0,2) == "00" ) && (index == blockchain.size())) {
         printf("Block hashes match --- Adding Block %s \n",hash.c_str());
         this->blockchain.push_back(std::make_unique<Block>(index,prevHash,hash,nonce,merkle));
         return 1;
     }
-    cout << "Hash doesn't match criteria\n";
+    std::cout << "Hash doesn't match criteria\n";
     return 0;
 }
 
@@ -103,7 +105,7 @@ int Blockchain::numOfBlocks(){
     return this->blockchain.size();
 }
 
-string Blockchain::getLatestBlockHash() {
+std::string Blockchain::getLatestBlockHash() {
     // If the size of blockchain is 5, getting the hash of the block of index 4
     return this->blockchain[this->blockchain.size()-1]->getHash();
 }
@@ -112,7 +114,7 @@ string Blockchain::getLatestBlockHash() {
  * All the data of the blockchain and its block in parsed json format
  * then converted into string with indentation of 3 spaces
 */
-string Blockchain::jsonDump() {
+std::string Blockchain::jsonDump() {
     nlohmann::json jsonData;
     jsonData["length"] = this->blockchain.size();
 
@@ -152,8 +154,8 @@ int Blockchain::replaceChain(nlohmann::json chain) {
         // Storing the json data of each block at a time
         auto block = chain["data"][a];
         // Changing the data into the list(vector) of strings
-        auto data = block["data"].get<vector<string>>();
-        this->addBlock(block["index"].get<int>(),block["prevHash"].get<string>(),block["hash"].get<string>(),block["nonce"].get<string>(),data);
+        auto data = block["data"].get<std::vector<std::string>>();
+        this->addBlock(block["index"].get<int>(),block["prevHash"].get<std::string>(),block["hash"].get<std::string>(),block["nonce"].get<std::string>(),data);
     }
     return 1;
 }
