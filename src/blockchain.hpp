@@ -11,7 +11,6 @@
 #include <vector>
 #include <string>
 #include <memory>
-#include <wsman.h>
 #include "block.hpp"
 #include "utils.hpp"
 #include "../lib/json.hpp"
