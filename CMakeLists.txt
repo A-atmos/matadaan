@@ -4,7 +4,8 @@ project(Matadaan)
 set(CMAKE_CXX_STANDARD 14)
 
 
-add_executable(Matadaan main.cpp src/block.hpp lib/sha256.hpp src/blockchain.hpp src/utils.hpp main.h src/simple_http/uri.hpp src/simple_http/http_message.hpp)
+add_executable(Matadaan main.cpp src/block.hpp lib/sha256.hpp src/blockchain.hpp src/utils.hpp main.h src/simple_http/uri.hpp src/simple_http/http_message.hpp src/graphics.hpp)
+
 
 find_package(OpenSSL REQUIRED)
 
