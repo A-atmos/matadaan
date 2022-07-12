@@ -11,6 +11,24 @@ It uses the concepts of OOP in C++, BlockChain Technology and the general concep
 *Preferred IDE: **CLion*** 
 
 **Use CMakeLists.txt or [build.sh](./build.sh) to build the Project.**
+### Build:
+Check if the required packages are available in the system
+```
+cmake CMakeLists.txt
+```
+Create a Makefile
+```
+cmake .
+```
+Compiles and creates a `Matadaan` named executable file
+```
+make
+```
+`./Matadaan`: to run the executable file
+```
+./Matadaan
+```
+
 ## External Libraries Used:
 - [openssl](https://github.com/openssl/openssl) for hashing
 - [gtkmm](http://www.gtkmm.org/en/documentation.html) for GUI
