@@ -77,6 +77,8 @@ namespace http{
     };
 
     // Functions to convert strings/int to enum class and vice versa
+
+    // Conversion of enum class HttpMethod to string
     std::string to_string(HttpMethod method){
         switch (method) {
             case HttpMethod::GET:
@@ -100,8 +102,9 @@ namespace http{
             default:
                 return {};
         }
-    };
+    }
 
+    // Function to convert enum class HttpVersion into string
     std::string to_string(HttpVersion version){
         switch (version) {
             case HttpVersion::HTTP_0_9:
@@ -115,8 +118,9 @@ namespace http{
             default:
                 return {};
         }
-    };
+    }
 
+    // Conversion of enum class HttpStatusCode into string
     std::string to_string(HttpStatusCode status_code){
         switch (status_code) {
             case HttpStatusCode::Continue:
@@ -149,8 +153,9 @@ namespace http{
                 return {};
         }
 
-    };
+    }
 
+    // Conversion of string to enum class HttpMethod
     HttpMethod string_to_method(const std::string& method_string){
         std::string method_string_uppercase;
         std::transform(method_string.begin(), method_string.end(),
@@ -176,7 +181,9 @@ namespace http{
         } else {
             throw std::invalid_argument("Unexpected HTTP method");
         }
-    };
+    }
+
+    // Conversion of string to enum class HttpVersion
     HttpVersion string_to_version(const std::string& version_string){
         std::string version_string_uppercase;
         std::transform(version_string.begin(), version_string.end(),
@@ -192,8 +199,40 @@ namespace http{
         } else {
             throw std::invalid_argument("Unexpected HTTP version");
         }
-    };
+    }
 
+    HttpStatusCode string_to_status_code(const int status_int){
+        if (status_int == 100) {
+            return HttpStatusCode::Continue;
+        } else if (status_int == 200) {
+            return HttpStatusCode::Ok;
+        } else if (status_int == 202) {
+            return HttpStatusCode::Accepted;
+        } else if (status_int == 301) {
+            return HttpStatusCode::MovedPermanently;
+        } else if (status_int == 302) {
+            return HttpStatusCode::Found;
+        } else if (status_int == 400) {
+            return HttpStatusCode::BadRequest;
+        } else if (status_int == 403) {
+            return HttpStatusCode::Forbidden;
+        } else if (status_int == 404) {
+            return HttpStatusCode::NotFound;
+        } else if (status_int == 405) {
+            return HttpStatusCode::MethodNotAllowed;
+        } else if (status_int == 418) {
+            return HttpStatusCode::ImATeapot;
+        } else if (status_int == 500) {
+            return HttpStatusCode::InternalServerError;
+        } else if (status_int == 501) {
+            return HttpStatusCode::NotImplemented;
+        } else if (status_int == 502) {
+            return HttpStatusCode::BadGateway;
+        } else {
+            throw std::invalid_argument("Unexpected Status Code");
+        }
+
+    }
     /*
      * Represents a general Http request which has a HttpVersion,
      * HttpHeaders and the HttpContent. It may be a request or
@@ -269,7 +308,7 @@ namespace http{
     class HttpResponse:public HttpMessage{
     public:
         HttpResponse(): _statusCode(HttpStatusCode::Ok){}
-        explicit HttpResponse(HttpStatusCode statusCode): _statusCode(statusCode){}
+
         ~HttpResponse() override = default;
 
         void SetStatusCode(HttpStatusCode statusCode){
@@ -280,7 +319,7 @@ namespace http{
             return this->_statusCode;
         }
 
-        friend std::string to_string(const HttpResponse& request, bool send_content);
+        friend std::string to_string(HttpResponse response, bool send_content);
         friend HttpResponse string_to_response(const std::string& response_string);
 
 
@@ -289,8 +328,21 @@ namespace http{
 
     };
 
+    /*
+     * Conversion of HttpRequest to string
+     * Used to send the response from server
+     * */
     std::string to_string(HttpRequest& request){
         std::ostringstream oss;
+
+        /*
+         * Format:
+         * GET / HTTP/1.1
+         * User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)
+         * Content-Length: 150
+         *
+         * Some Content here
+         * */
 
         oss << to_string(request.method()) << ' ';
         oss << request.uri().getPath() << ' ';
@@ -303,6 +355,10 @@ namespace http{
         return oss.str();
     };
 
+    /*
+     * Conversion of string to the class HttpRequest
+     * Used to convert the response from server to processable class
+     * */
     HttpRequest string_to_request(const std::string& request_string){
         std::string start_line, header_lines, message_body;
         std::istringstream iss;                     // used for easier string processing
@@ -374,12 +430,97 @@ namespace http{
     }
 
 
-    std::string to_string(const HttpResponse& request, bool send_content){
-        return {};
+    std::string to_string(HttpResponse response, bool send_content){
+        std::ostringstream oss;
+
+        /*
+         * Format:
+         * HTTP/1.1 404 Not Found
+         * Content-Type: text/html
+         * Content-Length: 150
+         *
+         * Some Content here
+         * */
+        oss << to_string(response.version()) << ' ';
+        oss << static_cast<int>(response.status_code()) << ' ';
+        oss << to_string(response.status_code()) << "\r\n";
+
+        for (const auto& p : response.headers())
+            oss << p.first << ": " << p.second << "\r\n";
+        oss << "\r\n";
+        if (send_content) {
+            oss << response.content();
+        }
+        return oss.str();
     };
 
     HttpResponse string_to_response(const std::string& response_string){
-        throw std::logic_error("Method Not Available!");
+        /*
+         * Format:
+         * HTTP/1.1 404 Not Found
+         * Content-Type: text/html
+         * Content-Length: 150
+         *
+         * Some Content here
+         *
+         * Change from string to class HttpResponse
+         * */
+        std::string start_line, header_lines, message_body;
+        std::istringstream oss;                     // used for easier string processing
+        HttpResponse response;
+        HttpStatusCode statusCode;
+
+        std::string line, version, status_code;                  // used for first line
+        int status_code_int;
+        std::string key, value;                   // used for header fields
+        size_t lpos = 0, rpos = 0;
+
+        rpos = response_string.find("\r\n",lpos);           // Store the number of char before \r\n in rpos
+        if(rpos == std::string::npos){
+            throw std::invalid_argument("Couldn't find the starting line!");
+        }
+
+        start_line = response_string.substr(lpos,rpos-lpos);
+        // store the value of next line in lpos
+        lpos = rpos + 2;
+        rpos = response_string.find("\r\n\r\n",lpos);
+
+        // lpos is the position of starting char, rpos is the position of end char
+
+        if(rpos != std::string::npos){
+            header_lines = response_string.substr(lpos,rpos-lpos);
+            lpos = rpos +4;             // after the header lines, and \r\n\r\n, getting the position in lpos
+            rpos = response_string.length();
+            if(lpos<rpos) {
+                message_body = response_string.substr(lpos, rpos - lpos);
+            }
+        }
+        // Parse the Starting Line
+        oss.clear();
+        oss.str(start_line);
+        oss >> version >> status_code_int ;
+
+        statusCode = string_to_status_code(status_code_int);
+        response.SetStatusCode(statusCode);
+
+        // Parse the Header Fields
+
+        oss.clear();
+        oss.str(header_lines);
+        while (std::getline(oss, line)) {
+            std::istringstream header_stream(line);
+            std::getline(header_stream, key, ':');
+            std::getline(header_stream, value);
+
+            // remove whitespaces from the two strings
+            key.erase(std::remove_if(key.begin(), key.end(), [](char c) { return std::isspace(c); }), key.end());
+            value.erase(std::remove_if(value.begin(), value.end(), [](char c) { return std::isspace(c); }), value.end());
+            response.SetHeader(key, value);
+        }
+
+        response.SetContent(message_body);
+
+        return response;
     };
 }
 
