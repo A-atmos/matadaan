@@ -20,6 +20,8 @@ namespace http{
     public:
         URI() = default;
         explicit URI(std::string& _path): path(_path){};
+
+        inline bool operator<(const URI& other) const { return path < other.path; }
         void setPathToLowerCase();
         int setPath(const std::string& _path);
         std::string getScheme();
