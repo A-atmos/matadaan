@@ -308,7 +308,7 @@ namespace http{
     class HttpResponse:public HttpMessage{
     public:
         HttpResponse(): _statusCode(HttpStatusCode::Ok){}
-
+        HttpResponse(HttpStatusCode statusCode){this->_statusCode = statusCode;}
         ~HttpResponse() override = default;
 
         void SetStatusCode(HttpStatusCode statusCode){
