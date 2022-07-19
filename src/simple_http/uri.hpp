@@ -9,6 +9,7 @@
 
 #include<string>
 #include<algorithm>
+#include <utility>
 
 namespace http{
     class URI{
@@ -28,6 +29,12 @@ namespace http{
         std::string getPath();
         std::string getHost();
         [[nodiscard]] std::uint16_t getPort() const;
+        void setHost(std::string _host){
+            host = std::move(_host);
+        }
+        void setPort(int _port){
+            port = _port;
+        }
 
     };
 
