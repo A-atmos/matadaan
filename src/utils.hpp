@@ -8,11 +8,22 @@
 #pragma once
 
 
+
 #include <string>
 #include <utility>
 #include <vector>
 #include <iostream>
 #include "../lib/sha256.hpp"
+
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/ioctl.h>
+#include <netinet/in.h>
+#include <net/if.h>
+#include <arpa/inet.h>
+
+#include <unistd.h>
+
 
 #include <memory>
 #include <stdexcept>
@@ -22,9 +33,9 @@ namespace blockUtils{
     static std::string getMerkleRoot(const std::vector<std::string> &merkle);
     static std::pair<std::string,std::string> findHash(int index,const std::string& prevHash, std::vector<std::string> &merkle);
     static void print_hex(const char *label, const uint8_t *v, size_t len);
-}
 
-/*
+
+    /*
      * merkelRoot is the unique hash which includes all the previousHash to generate a new hash
      * which is different for every block as every block has different number and list of previousHashes
      *
@@ -34,52 +45,52 @@ namespace blockUtils{
      * This is a time-consuming step, and it is responsible for making blockchain technology secure
      * as it goes on increasing.
  */
-std::string blockUtils::getMerkleRoot(const std::vector<std::string> &merkle) {
-    std::cout<<"\nFinding Merkle Root.... \n";
-    // If the merkel is empty, return ""
-    if (merkle.empty())
-        return "";
-    // If it is the genesis block i.e. the initialization block
-    // return the sha256 hash of the merkel of the genesis block
-    // which is "Genesis Block"
-    else if (merkle.size() == 1){
-        return hash::sha256(merkle[0]);
-    }
-    /*
-     * For all other blocks except genesis block
-     *
-    */
-    std::vector<std::string> new_merkle = merkle;
-
-    /*
-     * Iterating through the previous hashes to generate a single root hash known as merkelRoot
-    */
-
-    while (new_merkle.size() > 1) {
-        // If odd number of hashes in the provided merkel, evening it out.
-        if ( new_merkle.size() % 2 == 1 )
-            new_merkle.push_back(merkle.back());
-
-        std::vector<std::string> result;
+    std::string getMerkleRoot(const std::vector<std::string> &merkle) {
+        std::cout<<"\nFinding Merkle Root.... \n";
+        // If the merkel is empty, return ""
+        if (merkle.empty())
+            return "";
+            // If it is the genesis block i.e. the initialization block
+            // return the sha256 hash of the merkel of the genesis block
+            // which is "Genesis Block"
+        else if (merkle.size() == 1){
+            return hash::sha256(merkle[0]);
+        }
+        /*
+         * For all other blocks except genesis block
+         *
+        */
+        std::vector<std::string> new_merkle = merkle;
 
         /*
-         * Iterate through all the previous hashes in the merkel
-         * to get a "merkelRoot" which includes all the previous hashes
-         * and is unique for every block.
-         */
-        for (int i=0; i < new_merkle.size(); i += 2){
-            std::string var1 = hash::sha256(new_merkle[i]);
-            std::string var2 = hash::sha256(new_merkle[i+1]);
-            std::string hash = hash::sha256(var1+var2);
-            // printf("---hash(hash(%s), hash(%s)) => %s\n",new_merkle[0].c_str(),new_merkle[1].c_str(),hash.c_str());
-            result.push_back(hash);
-        }
-        //
-        new_merkle = result;
-    }
-    return new_merkle[0];
+         * Iterating through the previous hashes to generate a single root hash known as merkelRoot
+        */
 
-}
+        while (new_merkle.size() > 1) {
+            // If odd number of hashes in the provided merkel, evening it out.
+            if ( new_merkle.size() % 2 == 1 )
+                new_merkle.push_back(merkle.back());
+
+            std::vector<std::string> result;
+
+            /*
+             * Iterate through all the previous hashes in the merkel
+             * to get a "merkelRoot" which includes all the previous hashes
+             * and is unique for every block.
+             */
+            for (int i=0; i < new_merkle.size(); i += 2){
+                std::string var1 = hash::sha256(new_merkle[i]);
+                std::string var2 = hash::sha256(new_merkle[i+1]);
+                std::string hash = hash::sha256(var1+var2);
+                // printf("---hash(hash(%s), hash(%s)) => %s\n",new_merkle[0].c_str(),new_merkle[1].c_str(),hash.c_str());
+                result.push_back(hash);
+            }
+            //
+            new_merkle = result;
+        }
+        return new_merkle[0];
+
+    }
 
 //
 // Basically calculate a legit hash and getting a nonce(number-only-used-once) of the calculated has
@@ -89,59 +100,87 @@ std::string blockUtils::getMerkleRoot(const std::vector<std::string> &merkle) {
  * SHA256(str(index)+str(previousHash)+str(merkelRoot)+str(nonce))
  * merkelRoot -> A hash which is different for every block and depends on the merkel(list of hashes)
 */
-std::pair<std::string,std::string> blockUtils::findHash(int index,const std::string& prevHash, std::vector<std::string> &merkle) {
-    std::string header = std::to_string(index) + prevHash + getMerkleRoot(merkle);
-    unsigned int nonce=0;
-    while(true) {
-        std::string blockHash = hash::sha256(header + std::to_string(nonce));
-        if (blockHash.substr(0,2) == "00"){
-            return std::make_pair(blockHash,std::to_string(nonce));
+    std::pair<std::string,std::string> findHash(int index,const std::string& prevHash, std::vector<std::string> &merkle) {
+        std::string header = std::to_string(index) + prevHash + getMerkleRoot(merkle);
+        unsigned int nonce=0;
+        while(true) {
+            std::string blockHash = hash::sha256(header + std::to_string(nonce));
+            if (blockHash.substr(0,2) == "00"){
+                return std::make_pair(blockHash,std::to_string(nonce));
+            }
+            nonce++;
+            if(nonce>=1000000)break;
         }
-        nonce++;
-        if(nonce>=1000000)break;
+        return std::make_pair("fail","fail");
     }
-    return std::make_pair("fail","fail");
+
+    void print_hex(const char *label, const uint8_t *v, size_t len) {
+        size_t i;
+
+        printf("%s: ", label);
+        for (i = 0; i < len; ++i) {
+            printf("%02x", v[i]);
+        }
+        printf("\n");
+    }
+
+
 }
 
-void blockUtils::print_hex(const char *label, const uint8_t *v, size_t len) {
-    size_t i;
-
-    printf("%s: ", label);
-    for (i = 0; i < len; ++i) {
-        printf("%02x", v[i]);
-    }
-    printf("\n");
-}
-
-
-class voteUtils{
-public:
+namespace voteUtils{
     static bool alreadyVoted(const std::string& voterHash,nlohmann::json blockchain);
     static bool isValidVoter(const std::string& voterHash,nlohmann::json blockchain);
-};
 
-
-bool voteUtils::alreadyVoted(const std::string& voterHash,nlohmann::json blockchain) {
+    bool alreadyVoted(const std::string& voterHash,nlohmann::json blockchain) {
 //    std::cout<<blockchain;
-    for(int i=1;i<blockchain["length"].get<int>();i++) {
+        for(int i=1;i<blockchain["length"].get<int>();i++) {
 //        std::cout<<blockchain["data"][i]["data"][1]<<endl;
-        if(blockchain["data"][i]["data"][0] == voterHash){
-            return true;
+            if(blockchain["data"][i]["data"][0] == voterHash){
+                return true;
+            }
         }
+
+        return false;
     }
 
-    return false;
-}
 
 /*
  * Check if the voter has  not voted and if the voter is in the database
  * return true if satisfies above condition else return false
 */
-bool voteUtils::isValidVoter(const std::string& voterHash,nlohmann::json blockchain){
-    if(!alreadyVoted(voterHash,std::move(blockchain))){
-        return true;
+    bool isValidVoter(const std::string& voterHash,nlohmann::json blockchain){
+        if(!alreadyVoted(voterHash,std::move(blockchain))){
+            return true;
+        }
+        return false;
     }
-    return false;
+};
+
+namespace networkUtils{
+    std::string getTunnelAddress(){
+        int fd;
+        struct ifreq ifr;
+
+        fd = socket(AF_INET, SOCK_DGRAM, 0);
+
+        /* I want to get an IPv4 IP address */
+        ifr.ifr_addr.sa_family = AF_INET;
+        /* I want IP address attached to "eth0" */
+        strncpy(ifr.ifr_name, "wlan0", IFNAMSIZ-1);
+        ioctl(fd, SIOCGIFADDR, &ifr);
+        close(fd);
+
+        /* display result */
+        printf("%s\n", inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr));
+
+        std::string tun0 = inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr);
+
+        return tun0;
+
+    }
+
 }
+
+
 
 #endif //MATADAAN_UTILS_HPP
