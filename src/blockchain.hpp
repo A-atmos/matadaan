@@ -9,13 +9,14 @@
 
 #include <iostream>
 #include <vector>
+#include <algorithm>
 #include <string>
 #include <memory>
 #include "block.hpp"
 #include "utils.hpp"
 #include "../lib/json.hpp"
 
-
+#include "simple_http/http_client.hpp"
 //
 
 class Blockchain{
@@ -28,11 +29,15 @@ public:
     std::string jsonDump();
     int replaceChain(nlohmann::json chain);
     nlohmann::json toJson();
+    void update_nodes();
+    void add_node(std::string node_);
+
 private:
     // A dynamic arrays of block which can resize itself is stored as blockchain
     // Vector used as it fulfills the above criteria and is easy to get the last Block of the chain
 
     std::vector<std::unique_ptr<Block> > blockchain;
+    std::vector<std::string> nodes;
 };
 
 
@@ -158,5 +163,68 @@ int Blockchain::replaceChain(nlohmann::json chain) {
     }
     return 1;
 }
+
+void Blockchain::update_nodes() {
+
+    nodes.emplace_back("127.0.0.12");
+    int length_of_nodes_here = this->nodes.size();
+    std::vector<std::string> nodes_;
+    int len_of_nodes_remote;
+    http_client::HttpClient client;
+    http::HttpRequest request_;
+    http::HttpResponse response_;
+    http::URI uri;
+    int _port=8080;
+    std::string _host;
+    std::string content;
+
+
+    for(int i = 0; i < length_of_nodes_here; i++){
+
+        // Get the nodes from remote clients
+        _host = nodes[i];
+        uri.setPath("/nodes");
+        uri.setHost(_host);
+        uri.setPort(_port);
+        request_.SetUri(uri);
+        response_ = client.sendRequest(request_);
+
+        // Check if the response is 200 Ok
+        if(http::to_string(response_.status_code()) == "OK"){
+
+            content = response_.content();
+//            std::cout<<"content:\n"<<content<<std::endl;
+
+            nlohmann::json json_content = nlohmann::json::parse(content);
+
+            //Convert the array of nodes into vector of string and store in nodes_
+            json_content["nodes"].get_to(nodes_);
+//
+//
+            len_of_nodes_remote = json_content["length"];
+
+            if( len_of_nodes_remote > length_of_nodes_here){
+                for(int j = 0; j < len_of_nodes_remote; j++){
+                    // Check which node is different additional in the remote node array
+
+                    if(std::count(nodes.begin(),nodes.end(),nodes_[j])){
+                        nodes.push_back(nodes_[i]);
+                    }
+                }
+            }
+
+            length_of_nodes_here = nodes.size();
+
+            nodes_.clear();
+            std::cout<<nodes[i]<<std::endl;
+        }
+    }
+}
+
+void Blockchain::add_node(std::string node_) {
+    this->nodes.emplace_back(node_);
+}
+
+
 //
 #endif //MATADAAN_BLOCKCHAIN_HPP
