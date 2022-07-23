@@ -61,17 +61,19 @@ namespace http_client{
     http::HttpResponse HttpClient::sendRequest(http::HttpRequest request_) {
         http::HttpResponse response;
         char buffer[1024] = {0};
-
+        close(sock_fd_);
         CreateSocket();
-        std::cout<<request_.uri().getHost()<<":"<<request_.uri().getPort()<<std::endl;
+//        std::cout<<request_.uri().getHost()<<":"<<request_.uri().getPort()<<std::endl;
         Connect(request_.uri().getHost(),request_.uri().getPort());
 
 //        std::cout<<to_string(request_)<<std::endl<<std::endl;
 
         send(sock_fd_ , to_string(request_).c_str() , strlen(to_string(request_).c_str()) , 0 );
         read( sock_fd_ , buffer, 1024);
-        std::string response_string(reinterpret_cast<const char *>(buffer));
-        std::cout<<response_string<<std::endl;
+//        printf("%s", buffer);
+        std::string response_string = buffer;
+        close(sock_fd_);
+
         response = http::string_to_response(response_string);
         return response;
     }
