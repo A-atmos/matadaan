@@ -206,6 +206,8 @@ namespace http{
             return HttpStatusCode::Continue;
         } else if (status_int == 200) {
             return HttpStatusCode::Ok;
+        }else if (status_int == 201) {
+            return HttpStatusCode::Created;
         } else if (status_int == 202) {
             return HttpStatusCode::Accepted;
         } else if (status_int == 301) {
