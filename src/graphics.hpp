@@ -1,8 +1,8 @@
 #include <gtkmm.h>
 #include <iostream>
 #include <cstring>
-//#include <vector>
-//#include<fstream>
+#include <vector>
+#include<fstream>
 
 
 namespace superuser
@@ -10,15 +10,18 @@ namespace superuser
     std::string id="admin";
     std::string pwd="admin";
 
+
 }
 
-class Enter :public Gtk:: Window {
+class Enter :public Gtk:: Window{
 public:
 
     void on_button_clicked();
     int checkclicked();
     bool checksuperuser();
     void for_error();
+     bool check_user();
+
 
     Enter()
     {
@@ -67,7 +70,6 @@ public:
             return Window::on_delete_event(any_event);
         return true;
     }
-protected:
     int count=0;
     Gtk::ScrolledWindow scrolledWindow;
 
@@ -82,10 +84,11 @@ protected:
 
 //is called when login button is clicked
 void  Enter::on_button_clicked(){
-    if(checksuperuser()==1) {
+    if(checksuperuser()==1 || check_user()==1) {
         hide();
         count++;
     }
+
     else
     {
         for_error();
@@ -99,7 +102,6 @@ int Enter::checkclicked()
 {
     return count;
 }
-
 
 //checks if user is superuser
 bool Enter::checksuperuser()
@@ -164,15 +166,95 @@ private:
             return Window::on_delete_event(any_event);
         return true;
     }
+};
+
+
+
+class User{
+public:
+    std::string id;
+    std::string password;
+    std::string line;
+    std::vector<std::string>data;
+
+    User(){}
+    User(std::string id,std::string password)
+    {
+        this->id=id;
+        this->password=password;
+    }
+    void input_data(std::string filename);
+    void  get_file_content(std::string file);
+
+    ~User(){}
 
 
 };
-//class user
-//{
-//public:
-//    std::vector<std::string>id;
-//    std::vector<std::string>password;
-//    std::ofstream fout;
-//    std::fout.open("data.txt",app);
-//};
+void input_data(std::string filename)
+{
+    std::string line;
+    std::ofstream fout(filename.c_str(), std::ios::app);
+    while(fout)
+    {
+        getline(std::cin,line);
+        if(line=="q")
+            break;
+        fout<<line<<",";
+    }
+    fout.close();
+}
+void  User::get_file_content(std::string file)
+{
+
+
+    std::ifstream fin(file.c_str(),std::ios::in);
+    if(!fin)
+    {
+        std::cerr<<"Error occured";
+    }
+    while(fin)
+    {
+
+        getline(fin,line,',');
+        data.push_back(line);
+
+    }
+
+
+
+}
+bool Enter::check_user() {
+    Enter e;
+    User u1;
+    std::vector<User> user;
+    u1.get_file_content("data.txt");
+
+    std::string s1;
+    std::string s2;
+    int j = 1;
+    for (std::string &i: u1.data) {
+
+        if (j % 2 != 0) {
+            s1 = i;
+        } else {
+            s2 = i;
+            User u(s1, s2);
+            user.push_back(u);
+            s1.clear();
+            s2.clear();
+
+        }
+        j++;
+
+    }
+
+
+    std::vector<User>::iterator it;
+    for (it = user.begin(); it != user.end(); ++it) {
+        if(it->id==e.textbox1.get_text() && it->password==e.textbox2.get_text())
+        {
+            return 1;
+        }
+    }
+}
 
