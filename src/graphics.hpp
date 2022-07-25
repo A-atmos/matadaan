@@ -15,7 +15,7 @@ namespace superuser
 
 class Enter :public Gtk:: Window{
 public:
-
+    void show_login_page();
     void on_button_clicked();
     int checkclicked();
     bool checksuperuser();
@@ -23,8 +23,7 @@ public:
      bool check_user();
 
 
-    Enter()
-    {
+    Enter(){
         add(scrolledWindow);                //adds window
         scrolledWindow.add(fixed);
 
@@ -55,7 +54,7 @@ public:
         move(320, 200);
         resize(640, 480);
 
-        show_all();                                         //shows all widgets
+        show_all();
     }
 
     //asks if u wanna exit
@@ -70,6 +69,7 @@ public:
             return Window::on_delete_event(any_event);
         return true;
     }
+private:
     int count=0;
     Gtk::ScrolledWindow scrolledWindow;
 
@@ -80,6 +80,7 @@ public:
     Gtk::Button button0;
 
 };
+
 
 
 //is called when login button is clicked
@@ -224,7 +225,7 @@ void  User::get_file_content(std::string file)
 
 }
 bool Enter::check_user() {
-    Enter e;
+
     User u1;
     std::vector<User> user;
     u1.get_file_content("data.txt");
@@ -251,10 +252,30 @@ bool Enter::check_user() {
 
     std::vector<User>::iterator it;
     for (it = user.begin(); it != user.end(); ++it) {
-        if(it->id==e.textbox1.get_text() && it->password==e.textbox2.get_text())
-        {
+        if (it->id == textbox1.get_text() && it->password == textbox2.get_text()) {
             return 1;
         }
     }
 }
+int main (int argc, char *argv[]) {
+    Gtk::Main kit(argc, argv);
 
+    Enter enter;
+
+
+    //Shows the window and returns when it is closed.
+    Gtk::Main::run(enter);
+
+
+    if (enter.checkclicked() == 1) {
+        //Shows the window and returns when it is closed.
+
+        login log;
+        Gtk::Main::run(log);
+
+
+    }
+
+
+    return 0;
+}
