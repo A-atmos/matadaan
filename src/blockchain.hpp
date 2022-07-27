@@ -125,6 +125,9 @@ namespace Blockchain {
     int Blockchain::addBlock(int index, const std::string &prevHash, std::string hash, std::string nonce,
                              std::vector<std::string> &merkle) {
         std::string header = std::to_string(index) + prevHash + getMerkleRoot(merkle) + nonce;
+
+//        std::cout<<index <<":  "<< blockchain.size()<<std::endl;
+
         if ((!(hash::sha256(header).compare(hash))) && (hash.substr(0, 2) == "00") && (index == blockchain.size())) {
             printf("Block hashes match --- Adding Block %s \n", hash.c_str());
             this->blockchain.push_back(std::make_unique<Block>(index, prevHash, hash, nonce, merkle));
@@ -183,12 +186,12 @@ namespace Blockchain {
     int Blockchain::replaceChain(nlohmann::json chain) {
         // Removes all the block of the chain except the Genesis block
         // which need not be popped since it is same for all the nodes
-        while (this->blockchain.size()) {
+        while (this->blockchain.size()-1) {
             this->blockchain.pop_back();
         }
 
         // Adding blocks from the chain of another node from the json data
-        for (int a = 1; a < chain["length"].get<int>(); a++) {
+        for (int a = 0; a < chain["length"].get<int>(); a++) {
             // Storing the json data of each block at a time
             auto block = chain["data"][a];
             // Changing the data into the list(vector) of strings
@@ -285,7 +288,7 @@ namespace Blockchain {
 
     std::pair<std::string, std::string> Blockchain::findNewHash(std::vector<std::string> &merkle) {
 
-        std::cout<<this->latestBlockIndex()<<std::endl;
+//        std::cout<<this->latestBlockIndex()<<std::endl;
 
         std::string header =
                 std::to_string(this->latestBlockIndex()+1) + this->getLatestBlockHash() + getMerkleRoot(merkle);
@@ -317,7 +320,6 @@ namespace Blockchain {
             if (itr != std::end(candidates)) {
                 dist = std::distance(candidates.begin(), itr);
                 totalVotes[dist].second++;
-                std::cout << "Inside If";
             } else {
                 totalVotes.emplace_back(std::make_pair(vote, 1));
                 candidates.emplace_back(vote);
