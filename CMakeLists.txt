@@ -11,7 +11,7 @@ add_executable(Matadaan
             main.h src/simple_http/uri.hpp
             src/simple_http/http_message.hpp
             src/simple_http/http_server.hpp
-            src/graphics.hpp
+        src/graphics/graphics.hpp
             src/simple_http/http_client.h
             src/simple_http/http_client.hpp src/userModel.hpp)
 

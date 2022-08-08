@@ -12,7 +12,7 @@
 
 #include "src/blockchain.hpp"
 
-#include "src/graphics.hpp"
+#include "graphics/graphics.hpp"
 #include "src/userModel.hpp"
 
 #include <thread>
