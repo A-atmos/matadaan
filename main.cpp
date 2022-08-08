@@ -1,6 +1,7 @@
-#include <iostream>
 #include "main.h"
-#include <thread>
+#include <gtkmm.h>
+#include <string>
+
 
 #define PORT 8080
 
@@ -45,28 +46,28 @@ int init_server(Blockchain::Blockchain& blockchain){
     };
 
     auto total_votes = [&blockchain](const http::HttpRequest& request) -> http::HttpResponse {
-            std::string content_;
-            std::vector<std::pair<std::string, int>> total_votes;
-            nlohmann::json content;
+        std::string content_;
+        std::vector<std::pair<std::string, int>> total_votes;
+        nlohmann::json content;
 
-            //initiate the background process of generating new set of votes
-            std::thread (Blockchain::getVotesInBlockchain,std::ref(blockchain)).detach();
+        //initiate the background process of generating new set of votes
+        std::thread (Blockchain::getVotesInBlockchain,std::ref(blockchain)).detach();
 
-            // get the votes
-            total_votes = blockchain.getTotalVotes();
+        // get the votes
+        total_votes = blockchain.getTotalVotes();
 
-            for(int i = 0 ; i <total_votes.size();i++){
-                content["votes"][total_votes[i].first] = total_votes[i].second;
-            }
+        for(int i = 0 ; i <total_votes.size();i++){
+            content["votes"][total_votes[i].first] = total_votes[i].second;
+        }
 
-            content["candidates"] = total_votes.size();
+        content["candidates"] = total_votes.size();
 
-            content_ = content.dump(-1);
-            http::HttpResponse response(http::HttpStatusCode::Created);
-            response.SetHeader("Content-Type", "application/json");
-            response.SetContent(content_);
-            return response;
-        };
+        content_ = content.dump(-1);
+        http::HttpResponse response(http::HttpStatusCode::Created);
+        response.SetHeader("Content-Type", "application/json");
+        response.SetContent(content_);
+        return response;
+    };
 
 
     auto full_data = [&blockchain](const http::HttpRequest& request) -> http::HttpResponse {
@@ -125,37 +126,53 @@ int init_server(Blockchain::Blockchain& blockchain){
 
 }
 
-void ask_input(Blockchain::Blockchain& blockchain){
-    std::string string1;
-    std::cout<<"Give a input string"<<std::endl;
-    std::cin>>string1;
+
+
+int GUI(Blockchain::Blockchain& blockchain) {
+
+
+    Gtk::Main kit;
+
+
+//Shows the window and returns when it is closed.
+    while(true){
+        Enter enter(blockchain);
+
+        Gtk::Main::run(enter);
+
+        if (enter.checkclicked()) {
+            //Shows the window and returns when it is closed.
+            if(!enter.loggedUser().is_superuser()) {
+                std::cout << enter.loggedUser().id() << ":" << enter.loggedUser().password() << std::endl;
+                auto app = Gtk::Application::create("voterScreen");
+                voteWindow win(enter.loggedUser(), blockchain);
+                app->run(win);
+                enter.loggedIn = false;
+                enter.running = true;
+            }
+            else{
+                enter.running = false;
+            }
+        }
+        else{
+            // if superuser spawn superuser screen
+            enter.running = false;
+        }
+
+        if(!enter.running){
+            return 1;
+        }
+
+    }
 }
 
-int main() {
+int main(){
 
-    std::string init_;
-
-    //Initialize blockchain with genesis block
     Blockchain::Blockchain blockchain(0);
 
-
-
-    std::vector<std::string> data;
-    data.push_back(hash::sha256("2002"));
-    data.emplace_back("1");
-
-    auto hash_nonce_pair = blockUtils::findHash(1,blockchain.getLatestBlockHash(), data);
-    std::cout<<hash_nonce_pair.first<<","<<hash_nonce_pair.second<<std::endl;
-    blockchain.addBlock(blockchain.numOfBlocks(),blockchain.getLatestBlockHash(),hash_nonce_pair.first,hash_nonce_pair.second,data);
-
-    hash_nonce_pair = blockchain.findNewHash(data);
-    std::cout<<hash_nonce_pair.first<<","<<hash_nonce_pair.second<<std::endl;
-    blockchain.addBlock(blockchain.numOfBlocks(),blockchain.getLatestBlockHash(),hash_nonce_pair.first,hash_nonce_pair.second,data);
-
-
     std::thread thread1(init_server,std::ref(blockchain));
-    std::thread thread2(ask_input,std::ref(blockchain));
-
+//    std::thread thread2(ask_input,std::ref(blockchain));
+    std::thread thread2(GUI,std::ref(blockchain));
 
     thread1.detach();       // To seperate the server from the main application
     thread2.join();         // thread2 contains the main gui application which has the voting system running
