@@ -13,7 +13,7 @@ add_executable(Matadaan
             src/simple_http/http_server.hpp
             src/graphics.hpp
             src/simple_http/http_client.h
-            src/simple_http/http_client.hpp)
+            src/simple_http/http_client.hpp src/userModel.hpp)
 
 find_package(OpenSSL REQUIRED)
 
