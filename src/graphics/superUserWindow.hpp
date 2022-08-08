@@ -7,7 +7,6 @@
 #include <iostream>
 #include <gtkmm.h>
 
-
 class SuperUser : public Gtk::Window
 {
 public:
@@ -26,45 +25,45 @@ public:
         Selector.insert_page(S3, "Election Results", 2);
 
         S3.add(fixed3);
-        textbox4.set_text("Candidate Name");
-        fixed3.add(textbox4);
-        fixed3.move(textbox4, 850, 450);
-        textbox4.set_size_request(50, 10);
+        ResultTextbox.set_text("Candidate Name");
+        fixed3.add(ResultTextbox);
+        fixed3.move(ResultTextbox, 850, 450);
+        ResultTextbox.set_size_request(50, 10);
 
         S2.add(fixed2);
-        textbox3.set_text("Candidate Name");
-        fixed2.add(textbox3);
-        fixed2.move(textbox3, 850, 400);
-        textbox3.set_size_request(50, 10);
+        CandidateTextbox.set_text("Candidate Name");
+        fixed2.add(CandidateTextbox);
+        fixed2.move(CandidateTextbox, 850, 400);
+        CandidateTextbox.set_size_request(50, 10);
 
-        textbox2.set_text("Party Name");
-        fixed2.add(textbox2);
-        fixed2.move(textbox2, 850, 450);
-        textbox2.set_size_request(50, 10);
-        // creates login button
-        button1.set_label("Register");
-        fixed2.add(button1);
-        fixed2.move(button1, 890, 500);
-        button1.set_size_request(10, 10);
-        button1.signal_clicked().connect(sigc::mem_fun(*this, &SuperUser::on_button1_clicked));
+        PartyNameTextbox.set_text("Party Name");
+        fixed2.add(PartyNameTextbox);
+        fixed2.move(PartyNameTextbox, 850, 450);
+        PartyNameTextbox.set_size_request(50, 10);
+        // creates login RegisteruserButton
+        RegisterpartyButton.set_label("Register");
+        fixed2.add(RegisterpartyButton);
+        fixed2.move(RegisterpartyButton, 890, 500);
+        RegisterpartyButton.set_size_request(10, 10);
+        RegisterpartyButton.signal_clicked().connect(sigc::mem_fun(*this, &SuperUser::on_RegisterpartyButton_clicked));
 
         S1.add(fixed1);
-        textbox1.set_text("Citizenship No.");
-        fixed1.add(textbox1);
-        fixed1.move(textbox1, 850, 400);
-        textbox1.set_size_request(50, 10);
+        CnNoTextbox.set_text("Citizenship No.");
+        fixed1.add(CnNoTextbox);
+        fixed1.move(CnNoTextbox, 850, 400);
+        CnNoTextbox.set_size_request(50, 10);
 
-        textbox.set_text("Password");
-        fixed1.add(textbox);
-        fixed1.move(textbox, 850, 450);
-        textbox.set_size_request(50, 10);
-        // creates register button
-        button.set_label("Register");
-        fixed1.add(button);
-        fixed1.move(button, 890, 500);
-        button.set_size_request(10, 10);
+        passwordTextbox.set_text("Password");
+        fixed1.add(passwordTextbox);
+        fixed1.move(passwordTextbox, 850, 450);
+        passwordTextbox.set_size_request(50, 10);
+        // creates register RegisteruserButton
+        RegisteruserButton.set_label("Register");
+        fixed1.add(RegisteruserButton);
+        fixed1.move(RegisteruserButton, 890, 500);
+        RegisteruserButton.set_size_request(10, 10);
 
-        button.signal_clicked().connect(sigc::mem_fun(*this, &SuperUser::on_button_clicked));
+        RegisteruserButton.signal_clicked().connect(sigc::mem_fun(*this, &SuperUser::on_RegisteruserButton_clicked));
         set_title("SuperUser Screen");
         show_all();
     }
@@ -72,14 +71,14 @@ public:
     {
     }
 
-    // Call when the button os clicked and display my url
-    void on_button_clicked()
+    // Call when the RegisteruserButton os clicked and display my url
+    void on_RegisteruserButton_clicked()
     {
         std::cout << "Registered Voter" << std::endl;
     }
-    void on_button1_clicked()
+    void on_RegisterpartyButton_clicked()
     {
-        std::cout << "Registered Candidate" <<std::endl;
+        std::cout << "Registered Candidate" << std::endl;
     }
 
 private:
@@ -87,8 +86,8 @@ private:
     Gtk::ScrolledWindow scrolledWindow;
     Gtk::Notebook Selector;
     Gtk::Frame S1, S2, S3;
-    Gtk::Entry textbox, textbox1, textbox2, textbox3, textbox4;
-    Gtk::Button button, button1;
+    Gtk::Entry passwordTextbox, CnNoTextbox, PartyNameTextbox, CandidateTextbox, ResultTextbox;
+    Gtk::Button RegisteruserButton, RegisterpartyButton;
 
     bool on_delete_event(GdkEventAny *any_event) override
     {
