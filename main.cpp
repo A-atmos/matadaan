@@ -168,15 +168,13 @@ int GUI(Blockchain::Blockchain& blockchain) {
                 enter.running = true;
             }
             else{
+                // if superuser spawn superuser screen
+                SuperUser Sudo(enter.loggedUser(),blockchain);
+                Gtk::Main::run(Sudo);
                 enter.running = false;
             }
         }
-        else{
-            // if superuser spawn superuser screen
-            SuperUser Sudo;
-            Gtk::Main::run(Sudo);
-            enter.running = false;
-        }
+
 
         if(!enter.running){
             return 1;
