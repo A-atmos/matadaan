@@ -171,7 +171,12 @@ int GUI(Blockchain::Blockchain& blockchain) {
                 // if superuser spawn superuser screen
                 SuperUser Sudo(enter.loggedUser(),blockchain);
                 Gtk::Main::run(Sudo);
-                enter.running = false;
+                if(Sudo.exit){
+                    enter.running = false;
+                }
+                else{
+                    enter.running = true;
+                }
             }
         }
 
