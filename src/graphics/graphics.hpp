@@ -71,15 +71,17 @@ public:
 
     //asks if u wanna exit
     bool on_delete_event(GdkEventAny* any_event) override {
-        Gtk::MessageDialog dialog(*this, "matadaan grnu vayo tw??", true, Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_YES_NO, true);
+        Gtk::MessageDialog dialog(*this, "Please Login as Superuser to exit.", true, Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_CLOSE, true);
 
-        dialog.set_title("matadaan grnu vayo tw??");
+        dialog.set_title("Sorry");
         dialog.set_modal();
         dialog.set_size_request(100,20);
         dialog.set_position(Gtk::WindowPosition::WIN_POS_CENTER);
-        if (dialog.run() == Gtk::RESPONSE_YES)
-            return Window::on_delete_event(any_event);
-        running = false;
+        if (dialog.run() == Gtk::RESPONSE_CLOSE){
+            return true;
+
+        }
+        running = true;
         return true;
     }
 
@@ -151,11 +153,16 @@ bool Enter::checksuperuser()
 //prints error if login failed
 void Enter::loginError(std::string errorMessage) {
 
-    errorButton.set_label(errorMessage);
-    fixed.add(errorButton);
-    fixed.move(errorButton, 80, 50);
-    errorButton.set_size_request(200,10);
-    show_all();
+    Gtk::MessageDialog dialog(*this, errorMessage, true, Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_OK, true);
+
+    dialog.set_title("Error: "+errorMessage);
+    dialog.set_modal();
+    dialog.set_size_request(100,20);
+    dialog.set_position(Gtk::WindowPosition::WIN_POS_CENTER);
+    if (dialog.run() == Gtk::RESPONSE_OK)
+        show();
+
+
 }
 
 
@@ -185,10 +192,26 @@ voteWindow::voteWindow(USER::User _user,Blockchain::Blockchain& _blockchain) {
     Gtk::Box *vbox = Gtk::manage(new Gtk::VBox);
     add(*vbox);
 
+
+    auto msg = Gtk::manage(new Gtk::Label("Federal Elections of Nepal - 2080"));
+    auto attrlist = pango_attr_list_new();
+
+    PangoFontDescription * font_desc = pango_font_description_new();
+    pango_font_description_set_size(font_desc, 36 * PANGO_SCALE);
+    PangoAttribute * attr = pango_attr_font_desc_new(font_desc);
+    pango_attr_list_insert(attrlist, attr);
+
+    msg->set_hexpand(true);
+    auto list = Pango::AttrList(attrlist);
+    msg->set_attributes(list);
+
+    vbox->add(*msg);
+
+
     int height = candidates.size()/8;
     height++;
 
-    int h_pos=0,v_pos=0;
+    int h_pos=0;
 
 
     for(int i =0; i<height;++i){
@@ -228,15 +251,27 @@ voteWindow::voteWindow(USER::User _user,Blockchain::Blockchain& _blockchain) {
 void voteWindow::on_button_click(int x,int y, Blockchain::Blockchain& _blockchain) {
     std::cout<<"("<<x<<","<<y<<")"<<std::endl;
 
-    std::vector<std::string> data;
-    std::cout<<currentUser.id()<<":"<<hash::sha256(currentUser.id())<<":"<<candidates[x+y*8].getName()<<std::endl;
-    data.push_back(hash::sha256(currentUser.id()));
-    data.emplace_back(candidates[x+y*8].getName());
+    Gtk::MessageDialog dialog(*this, "Do you want to confirm your vote?", true, Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_YES_NO, true);
 
-    auto hash_nonce_pair = _blockchain.findNewHash(data);
+    dialog.set_title("Vote Confirmation");
+    dialog.set_modal();
+    dialog.set_size_request(100,20);
+    dialog.set_position(Gtk::WindowPosition::WIN_POS_CENTER);
+    if (dialog.run() == Gtk::RESPONSE_YES) {
 
-    _blockchain.addBlock(_blockchain.numOfBlocks(),_blockchain.getLatestBlockHash(),hash_nonce_pair.first,hash_nonce_pair.second,data);
-    hide();
+        std::vector<std::string> data;
+        std::cout << currentUser.id() << ":" << hash::sha256(currentUser.id()) << ":" << candidates[x + y * 8].getName()
+                  << std::endl;
+        data.push_back(hash::sha256(currentUser.id()));
+        data.emplace_back(candidates[x + y * 8].getName());
+
+        auto hash_nonce_pair = _blockchain.findNewHash(data);
+
+        _blockchain.addBlock(_blockchain.numOfBlocks(), _blockchain.getLatestBlockHash(), hash_nonce_pair.first,
+                             hash_nonce_pair.second, data);
+
+        hide();
+    }
 }
 
 voteWindow::~voteWindow(){}
