@@ -12,7 +12,7 @@
 #include <unistd.h>
 #include <cstring>
 #include <iostream>
-
+#define kMaxBufferSize 4096
 #include "http_client.h"
 
 
@@ -60,7 +60,7 @@ namespace http_client{
 
     http::HttpResponse HttpClient::sendRequest(http::HttpRequest request_) {
         http::HttpResponse response;
-        char buffer[1024] = {0};
+        char buffer[kMaxBufferSize] = {0};
         close(sock_fd_);
         CreateSocket();
 //        std::cout<<request_.uri().getHost()<<":"<<request_.uri().getPort()<<std::endl;
@@ -69,7 +69,7 @@ namespace http_client{
 //        std::cout<<to_string(request_)<<std::endl<<std::endl;
 
         send(sock_fd_ , to_string(request_).c_str() , strlen(to_string(request_).c_str()) , 0 );
-        read( sock_fd_ , buffer, 1024);
+        read( sock_fd_ , buffer, kMaxBufferSize);
 //        printf("%s", buffer);
         std::string response_string = buffer;
         close(sock_fd_);
