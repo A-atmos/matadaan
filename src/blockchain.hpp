@@ -25,7 +25,7 @@ namespace Blockchain {
 
     class Blockchain {
     public:
-        explicit Blockchain(int genesis = 1);
+        explicit Blockchain( std::string _node, int genesis = 1);
 
         Block getBlock(int index);
 
@@ -53,32 +53,37 @@ namespace Blockchain {
 
         std::string get_nodes();
 
+        std::string get_nodes_without_self();
+
         int node_length();
 
         int latestBlockIndex();
 
         std::pair<std::string, std::string> findNewHash(std::vector<std::string> &merkle);
         friend void getVotesInBlockchain(Blockchain&);
+
 //    void update_block();
 
     private:
         // A dynamic arrays of block which can resize itself is stored as blockchain
         // Vector used as it fulfills the above criteria and is easy to get the last Block of the chain
-
+        std::string self_node;
         std::vector<std::unique_ptr<Block> > blockchain;
-        std::vector<std::unique_ptr<std::string>> nodes;
+        std::vector<std::string> nodes;
         std::vector<std::pair<std::string, int>> votes;
 
     };
 
 
-    Blockchain::Blockchain(int genesis) {
+    Blockchain::Blockchain( std::string _node, int genesis) {
 
         /* If 0 is passed while creating the blockchain, it is considered as the genesis block
          * For Genesis block, initializing the values by creating a previous hash of "00000000000000"
          * and a merkel of "Genesis Block!" which will be considered to have a merkelRoot of
          * sha256("Genesis Block!")
         */
+        self_node = _node;
+        this->add_node(_node);
         if (genesis == 0) {
             // Initializing a vector of strings
             std::vector<std::string> v;
@@ -205,6 +210,9 @@ namespace Blockchain {
     void Blockchain::update_nodes() {
 
         int length_of_nodes_here = this->nodes.size();
+        std::string host_str = this->get_nodes_without_self();
+        nlohmann::json host_arr = nlohmann::json::parse(host_str);
+
         std::vector<std::string> nodes_;
         int len_of_nodes_remote;
         http_client::HttpClient client;
@@ -215,15 +223,19 @@ namespace Blockchain {
         std::string _host;
         std::string content;
 
-
-        for (int i = 0; i < length_of_nodes_here; i++) {
+//        std::cout<<host_arr<<std::endl;
+        for (int i = 0; i < length_of_nodes_here-1; i++) {
 
             // Get the nodes from remote clients
-            _host = reinterpret_cast<const std::basic_string<char> &>(this->nodes[i]);
+//            std::cout<<host_arr[i]<<std::endl;
+
+            _host = host_arr[i];
+            std::cout<<_host<<std::endl;
             uri.setPath("/nodes");
             uri.setHost(_host);
             uri.setPort(_port);
             request_.SetUri(uri);
+            request_.SetMethod(http::HttpMethod::GET);
             response_ = client.sendRequest(request_);
 
             // Check if the response is 200 Ok
@@ -243,7 +255,7 @@ namespace Blockchain {
                 if (len_of_nodes_remote > length_of_nodes_here) {
                     for (int j = 0; j < len_of_nodes_remote; j++) {
                         // Check which node is different additional in the remote node array
-                        this->nodes.push_back(std::make_unique<std::string>(nodes_[j]));
+                        this->nodes.push_back(nodes_[j]);
                     }
                 }
 
@@ -258,15 +270,37 @@ namespace Blockchain {
  * Check if the node is unique and if it is then add to nodes
 */
     void Blockchain::add_node(std::string node_) {
-        this->nodes.push_back(std::make_unique<std::string>(node_));
+        bool present = false;
+        for(int i =0; i<nodes.size();i++){
+            if(nodes[i] == node_){
+                present = true;
+            }
+        }
+        if(!present){
+            this->nodes.push_back(node_);
+        }
     }
 
     std::string Blockchain::get_nodes() {
         nlohmann::json nodes_ = nlohmann::json::array();
 
         for (int i = 0; i < nodes.size(); i++) {
+//            std::cout<<(*nodes[i]);
 //        ss << reinterpret_cast<const std::basic_string<char> &>(this->nodes[i]);
-            nodes_.push_back(reinterpret_cast<const std::basic_string<char> &>(this->nodes[i]));
+            nodes_.push_back(this->nodes[i]);
+        }
+
+        return nodes_.dump(-1);
+    }
+
+    std::string Blockchain::get_nodes_without_self() {
+        nlohmann::json nodes_ = nlohmann::json::array();
+
+        for (int i = 1; i < nodes.size(); i++) {
+            if(!(this->nodes[i]==self_node)) {
+//                ss << reinterpret_cast<const std::basic_string<char> &>(this->nodes[i]);
+                nodes_.push_back(this->nodes[i]);
+            }
         }
 
         return nodes_.dump(-1);
