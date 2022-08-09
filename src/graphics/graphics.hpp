@@ -33,7 +33,7 @@ public:
 
     Enter(Blockchain::Blockchain& _blockchain){
         // loads the user data from file and make it the vector of users
-        user=USER::loadData("/home/ac/CLionProjects/matadaan/data.test");
+        user=USER::loadData("user.txt");
         blockchain = _blockchain.toJson();
 
         add(scrolledWindow);                //adds window
