@@ -13,17 +13,18 @@ class SuperUser : public Gtk::Window
 {
 public:
     bool exit;
-    SuperUser(USER::User _user,Blockchain::Blockchain& blockchain);
+    SuperUser(USER::User _user, Blockchain::Blockchain &blockchain);
 
     // Destructor called
-    ~SuperUser(){}
+    ~SuperUser() {}
 
     // Call when the RegisteruserButton is clicked
     void on_RegisteruserButton_clicked();
     // Call when the RegisterpartyButton is clicked
     void on_RegisterpartyButton_clicked();
-    void on_addbutton_clicked(Blockchain::Blockchain& blockchain);
+    void on_addbutton_clicked(Blockchain::Blockchain &blockchain);
     void on_click_logout();
+
 private:
     Gtk::Fixed fixed, fixed1, fixed2, fixed3, fixed7;
     Gtk::ScrolledWindow scrolledWindow;
@@ -41,7 +42,8 @@ private:
         dialog.set_modal();
         dialog.set_size_request(200, 50);
         dialog.set_position(Gtk::WindowPosition::WIN_POS_CENTER);
-        if (dialog.run() == Gtk::RESPONSE_YES){
+        if (dialog.run() == Gtk::RESPONSE_YES)
+        {
             exit = true;
             return Window::on_delete_event(any_event);
         }
@@ -49,7 +51,7 @@ private:
     }
 };
 
-SuperUser::SuperUser(USER::User _user,Blockchain::Blockchain &blockchain)
+SuperUser::SuperUser(USER::User _user, Blockchain::Blockchain &blockchain)
 {
     this->resize(1920, 1080);
     set_border_width(5);
@@ -61,13 +63,12 @@ SuperUser::SuperUser(USER::User _user,Blockchain::Blockchain &blockchain)
 
     Selector.insert_page(S1, "Add Voter", 0); // S1,S2,S3 are the frame widgets which are added to notebook
     Selector.insert_page(S2, "Add Contender", 1);
-    Selector.insert_page(S3, "Election Results", 2);
-    Selector.insert_page(S4, "Settings", 3);
+    Selector.insert_page(S4, "Settings", 2);
 
-//    S3.override_background_color(Gdk::RGBA("#abaaa7"));
-//    S2.override_background_color(Gdk::RGBA("#abaaa7"));
-//    S1.override_background_color(Gdk::RGBA("#abaaa7"));
-//    S4.override_background_color(Gdk::RGBA("#abaaa7"));
+    //    S3.override_background_color(Gdk::RGBA("#abaaa7"));
+    //    S2.override_background_color(Gdk::RGBA("#abaaa7"));
+    //    S1.override_background_color(Gdk::RGBA("#abaaa7"));
+    //    S4.override_background_color(Gdk::RGBA("#abaaa7"));
 
     S4.add(fixed7);
 
@@ -100,33 +101,16 @@ SuperUser::SuperUser(USER::User _user,Blockchain::Blockchain &blockchain)
     fixed7.add(Logout);
     fixed7.move(Logout, 840, 600);
     Logout.set_size_request(200, 10);
-    Logout.signal_clicked().connect([this] {this->on_click_logout();});
+    Logout.signal_clicked().connect([this]
+                                    { this->on_click_logout(); });
 
     addbutton.set_label("Add"); // adds the button named "RegisterPartyButton"
     fixed7.add(addbutton);
     fixed7.move(addbutton, 840, 500);
     addbutton.set_size_request(200, 10);
-    addbutton.signal_clicked().connect([this,&blockchain] {this->on_addbutton_clicked(blockchain);});
-//    addbutton.signal_clicked().connect(sigc::mem_fun(*this, &SuperUser::on_addbutton_clicked));
-
-    S3.add(fixed3);
-    pango_font_description_set_size(font_desc, 20 * PANGO_SCALE);
-    PangoAttribute *attr = pango_attr_font_desc_new(font_desc);
-    pango_attr_list_insert(attlist, attr);
-
-    auto list = Pango::AttrList(attlist);
-
-    label1.set_text("Vote Count Results");
-    label1.set_attributes(list);
-    fixed3.add(label1);
-    fixed3.move(label1, 740, 100);
-    label1.set_size_request(400, 20);
-    label1.override_background_color(Gdk::RGBA("#D3D3D3"));
-
-    ResultTextbox.set_text("");
-    fixed3.add(ResultTextbox); // adds the textbox named "ResultTextbox"
-    fixed3.move(ResultTextbox, 740, 450);
-    ResultTextbox.set_size_request(400, 10);
+    addbutton.signal_clicked().connect([this, &blockchain]
+                                       { this->on_addbutton_clicked(blockchain); });
+    //    addbutton.signal_clicked().connect(sigc::mem_fun(*this, &SuperUser::on_addbutton_clicked));
 
     S2.add(fixed2);
 
@@ -140,7 +124,6 @@ SuperUser::SuperUser(USER::User _user,Blockchain::Blockchain &blockchain)
     fixed2.add(toplabel);
     fixed2.move(toplabel, 740, 100);
     toplabel.set_size_request(400, 20);
-    toplabel.override_background_color(Gdk::RGBA("#D3D3D3"));
 
     label2.set_text("Candidate Name:");
     fixed2.add(label2);
@@ -180,7 +163,6 @@ SuperUser::SuperUser(USER::User _user,Blockchain::Blockchain &blockchain)
     fixed1.add(toplabel1);
     fixed1.move(toplabel1, 740, 100);
     toplabel1.set_size_request(400, 20);
-    toplabel1.override_background_color(Gdk::RGBA("#D3D3D3"));
 
     label5.set_text("Citizenship No:");
     fixed1.add(label5);
@@ -206,48 +188,49 @@ SuperUser::SuperUser(USER::User _user,Blockchain::Blockchain &blockchain)
     fixed1.add(RegisteruserButton); // adds the button named "RegisterUserButton"
     fixed1.move(RegisteruserButton, 840, 530);
     RegisteruserButton.set_size_request(200, 10);
-//[this,&blockchain] {this->on_RegisteruserButton_clicked(blockchain);}
-    RegisteruserButton.signal_clicked().connect([this] {this->on_RegisteruserButton_clicked();});
+    //[this,&blockchain] {this->on_RegisteruserButton_clicked(blockchain);}
+    RegisteruserButton.signal_clicked().connect([this]
+                                                { this->on_RegisteruserButton_clicked(); });
 
-//    ResultTextbox.override_background_color(Gdk::RGBA("#D3D3D3"));
-//    ResultTextbox1.override_background_color(Gdk::RGBA("#D3D3D3"));
-//    passwordTextbox.override_background_color(Gdk::RGBA("#D3D3D3"));
-//    CnNoTextbox.override_background_color(Gdk::RGBA("#D3D3D3"));
-//    CandidateTextbox.override_background_color(Gdk::RGBA("#D3D3D3"));
-//    PartyNameTextbox.override_background_color(Gdk::RGBA("#D3D3D3"));
-//    RegisteruserButton.override_background_color(Gdk::RGBA("#D3D3D3"));
-//    RegisterpartyButton.override_background_color(Gdk::RGBA("#D3D3D3"));
-//    addbutton.override_background_color(Gdk::RGBA("#D3D3D3"));
+    //    ResultTextbox.override_background_color(Gdk::RGBA("#D3D3D3"));
+    //    ResultTextbox1.override_background_color(Gdk::RGBA("#D3D3D3"));
+    //    passwordTextbox.override_background_color(Gdk::RGBA("#D3D3D3"));
+    //    CnNoTextbox.override_background_color(Gdk::RGBA("#D3D3D3"));
+    //    CandidateTextbox.override_background_color(Gdk::RGBA("#D3D3D3"));
+    //    PartyNameTextbox.override_background_color(Gdk::RGBA("#D3D3D3"));
+    //    RegisteruserButton.override_background_color(Gdk::RGBA("#D3D3D3"));
+    //    RegisterpartyButton.override_background_color(Gdk::RGBA("#D3D3D3"));
+    //    addbutton.override_background_color(Gdk::RGBA("#D3D3D3"));
 
     set_title("SuperUser Screen"); // title of the window
     show_all();
 }
 
-void SuperUser::on_addbutton_clicked(Blockchain::Blockchain &blockchain) {
-//    ResultTextbox1
+void SuperUser::on_addbutton_clicked(Blockchain::Blockchain &blockchain)
+{
+    //    ResultTextbox1
     blockchain.add_node(ResultTextbox1.get_text());
-    Gtk::MessageDialog dialog(*this, "Added Node:"+ResultTextbox1.get_text(), true, Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_OK, true);
+    Gtk::MessageDialog dialog(*this, "Added Node:" + ResultTextbox1.get_text(), true, Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_OK, true);
 
     dialog.set_title("Node Added");
     dialog.set_modal();
-    dialog.set_size_request(100,20);
+    dialog.set_size_request(100, 20);
     dialog.set_position(Gtk::WindowPosition::WIN_POS_CENTER);
     if (dialog.run() == Gtk::RESPONSE_OK)
         show();
-
 }
 
-void SuperUser::on_RegisteruserButton_clicked()    {
-    USER::saveUser(CnNoTextbox.get_text(),passwordTextbox.get_text());
-    Gtk::MessageDialog dialog(*this, "Added Voter:"+CnNoTextbox.get_text(), true, Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_OK, true);
+void SuperUser::on_RegisteruserButton_clicked()
+{
+    USER::saveUser(CnNoTextbox.get_text(), passwordTextbox.get_text());
+    Gtk::MessageDialog dialog(*this, "Added Voter:" + CnNoTextbox.get_text(), true, Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_OK, true);
 
     dialog.set_title("Voter Added");
     dialog.set_modal();
-    dialog.set_size_request(100,20);
+    dialog.set_size_request(100, 20);
     dialog.set_position(Gtk::WindowPosition::WIN_POS_CENTER);
     if (dialog.run() == Gtk::RESPONSE_OK)
         show();
-
 }
 
 void SuperUser::on_RegisterpartyButton_clicked()
@@ -255,19 +238,19 @@ void SuperUser::on_RegisterpartyButton_clicked()
     std::cout << "Registered Candidate" << std::endl;
 }
 
-void SuperUser::on_click_logout() {
+void SuperUser::on_click_logout()
+{
     Gtk::MessageDialog dialog(*this, "Please Confirm to logout!", true, Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_YES_NO, true);
 
     dialog.set_title("Logout");
     dialog.set_modal();
     dialog.set_size_request(200, 50);
     dialog.set_position(Gtk::WindowPosition::WIN_POS_CENTER);
-    if (dialog.run() == Gtk::RESPONSE_YES){
-        exit=false;
+    if (dialog.run() == Gtk::RESPONSE_YES)
+    {
+        exit = false;
         hide();
     }
-
-
 }
 
 #endif // MATADAAN_SUPERUSERWINDOW_HPP
