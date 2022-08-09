@@ -56,7 +56,7 @@ namespace USER {
     };
 
 
-    void saveUser(const std::string& _username,std::string _password,bool superuser=false,std::string filename="/home/ac/CLionProjects/matadaan/user.test"){
+    void saveUser(const std::string& _username,std::string _password,bool superuser=false,std::string filename="user.txt"){
         std::ofstream fout(filename.c_str(),std::ios::app);
         fout<<std::endl<<_username<<","<<hash::sha256(std::move(_password))<<","<<superuser;
         fout.close();
@@ -129,7 +129,7 @@ namespace CANDIDATE{
         pathToImage = _pathToImage;
     }
 
-    std::vector<candidate> loadFromFile(std::string fileName="/home/ac/Desktop/workspace/projects/matadaan/candidate.txt"){
+    std::vector<candidate> loadFromFile(std::string fileName="candidates/candidates.txt"){
         std::string _name,_pathToImage,line;
 
         std::vector<candidate> cand;
@@ -158,11 +158,11 @@ namespace CANDIDATE{
 
     }
 
-    void save(std::string _name, std::string _image_name, std::string fileName) {
+    void save(std::string _name, std::string _image_name, std::string fileName="candidates/candidates.txt") {
         std::fstream file;
         std::string _pathToImage = "candidates/images/"+_image_name+".png";
         file.open(fileName,std::ios::app);
-        file<<_name<<","<<_pathToImage<<std::endl;
+        file<<std::endl<<_name<<","<<_pathToImage;
         file.close();
     }
 
