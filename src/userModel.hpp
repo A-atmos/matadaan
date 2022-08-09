@@ -10,6 +10,7 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <utility>
 #include <gtkmm.h>
 #include <gdkmm.h>
 
@@ -32,16 +33,16 @@ namespace USER {
 
         User(std::string id, std::string password, bool is_superuser) : _id(std::move(id)), _password(std::move(password)) {_superuser = is_superuser;}
 
-        friend void input_data(std::string filename);
 
         std::string id() { return _id; }
-
         std::string password() { return _password; }
         bool is_superuser(){return _superuser;}
         // friend std::vector<User> load_data(std::string fileName);
-        friend std::vector <User> loadData(std::string fileName);
-
         bool alreadyVoted(nlohmann::json blockchain);
+
+
+        friend std::vector <User> loadData(std::string fileName);
+        friend void saveUser(const std::string& _username,std::string _password,bool superuser,std::string filename);
 
         ~User() {}
 
@@ -54,6 +55,12 @@ namespace USER {
 
     };
 
+
+    void saveUser(const std::string& _username,std::string _password,bool superuser=false,std::string filename="/home/ac/CLionProjects/matadaan/user.test"){
+        std::ofstream fout(filename.c_str(),std::ios::app);
+        fout<<std::endl<<_username<<","<<hash::sha256(std::move(_password))<<","<<superuser;
+        fout.close();
+    }
 
     void input_data(std::string filename) {
         std::string line;
