@@ -270,6 +270,7 @@ void voteWindow::on_button_click(int x,int y, Blockchain::Blockchain& _blockchai
         _blockchain.addBlock(_blockchain.numOfBlocks(), _blockchain.getLatestBlockHash(), hash_nonce_pair.first,
                              hash_nonce_pair.second, data);
 
+        std::thread (Blockchain::sendBlockchainToPeerNodes,std::ref(_blockchain)).detach();
         hide();
     }
 }
