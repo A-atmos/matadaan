@@ -12,6 +12,7 @@
 class SuperUser : public Gtk::Window
 {
 public:
+    bool exit;
     SuperUser(USER::User _user,Blockchain::Blockchain& blockchain);
 
     // Destructor called
@@ -22,14 +23,14 @@ public:
     // Call when the RegisterpartyButton is clicked
     void on_RegisterpartyButton_clicked();
     void on_addbutton_clicked(Blockchain::Blockchain& blockchain);
-
+    void on_click_logout();
 private:
     Gtk::Fixed fixed, fixed1, fixed2, fixed3, fixed7;
     Gtk::ScrolledWindow scrolledWindow;
     Gtk::Notebook Selector;
     Gtk::Frame S1, S2, S3, S4;
     Gtk::Entry passwordTextbox, CnNoTextbox, PartyNameTextbox, CandidateTextbox, ResultTextbox, ResultTextbox1;
-    Gtk::Button RegisteruserButton, RegisterpartyButton, addbutton;
+    Gtk::Button RegisteruserButton, RegisterpartyButton, addbutton, Logout;
     Gtk::Label label1, label2, label3, label4, label5, toplabel, toplabel1, label7, label8;
 
     bool on_delete_event(GdkEventAny *any_event) override // shows the dialog box while attempting to close window
@@ -40,8 +41,10 @@ private:
         dialog.set_modal();
         dialog.set_size_request(200, 50);
         dialog.set_position(Gtk::WindowPosition::WIN_POS_CENTER);
-        if (dialog.run() == Gtk::RESPONSE_YES)
+        if (dialog.run() == Gtk::RESPONSE_YES){
+            exit = true;
             return Window::on_delete_event(any_event);
+        }
         return true;
     }
 };
@@ -92,6 +95,12 @@ SuperUser::SuperUser(USER::User _user,Blockchain::Blockchain &blockchain)
     fixed7.add(ResultTextbox1); // adds the textbox named "ResultTextbox"
     fixed7.move(ResultTextbox1, 740, 450);
     ResultTextbox1.set_size_request(400, 10);
+
+    Logout.set_label("Logout");
+    fixed7.add(Logout);
+    fixed7.move(Logout, 840, 600);
+    Logout.set_size_request(200, 10);
+    Logout.signal_clicked().connect([this] {this->on_click_logout();});
 
     addbutton.set_label("Add"); // adds the button named "RegisterPartyButton"
     fixed7.add(addbutton);
@@ -244,6 +253,21 @@ void SuperUser::on_RegisteruserButton_clicked()    {
 void SuperUser::on_RegisterpartyButton_clicked()
 {
     std::cout << "Registered Candidate" << std::endl;
+}
+
+void SuperUser::on_click_logout() {
+    Gtk::MessageDialog dialog(*this, "Please Confirm to logout!", true, Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_YES_NO, true);
+
+    dialog.set_title("Logout");
+    dialog.set_modal();
+    dialog.set_size_request(200, 50);
+    dialog.set_position(Gtk::WindowPosition::WIN_POS_CENTER);
+    if (dialog.run() == Gtk::RESPONSE_YES){
+        exit=false;
+        hide();
+    }
+
+
 }
 
 #endif // MATADAAN_SUPERUSERWINDOW_HPP
