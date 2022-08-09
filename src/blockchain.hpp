@@ -61,7 +61,7 @@ namespace Blockchain {
 
         std::pair<std::string, std::string> findNewHash(std::vector<std::string> &merkle);
         friend void getVotesInBlockchain(Blockchain&);
-
+        friend void sendBlockchainToPeerNodes(Blockchain&);
 //    void update_block();
 
     private:
@@ -136,6 +136,7 @@ namespace Blockchain {
         if ((!(hash::sha256(header).compare(hash))) && (hash.substr(0, 2) == "00") && (index == blockchain.size())) {
             printf("Block hashes match --- Adding Block %s \n", hash.c_str());
             this->blockchain.push_back(std::make_unique<Block>(index, prevHash, hash, nonce, merkle));
+            //sendBlockchainToPeerNodes
             return 1;
         }
         std::cout << "Hash doesn't match criteria\n";
@@ -279,6 +280,32 @@ namespace Blockchain {
         if(!present){
             this->nodes.push_back(node_);
         }
+
+        if(node_!=networkUtils::getTunnelAddress()){
+
+            //update blockchain
+            http_client::HttpClient client;
+            http::HttpRequest request_;
+            http::HttpResponse response_;
+            http::URI uri;
+            int _port = 8080;
+            std::string content;
+
+            uri.setPath("/blockchain");
+            uri.setHost(node_);
+            uri.setPort(_port);
+            request_.SetUri(uri);
+            request_.SetMethod(http::HttpMethod::GET);
+            response_ = client.sendRequest(request_);
+
+            if(http::to_string(response_.status_code()) == "OK"){
+                content = response_.content();
+//            std::cout<<"content:\n"<<content<<std::endl;
+
+                nlohmann::json json_content = nlohmann::json::parse(content);
+                this->replaceChain(json_content);
+            }
+        }
     }
 
     std::string Blockchain::get_nodes() {
@@ -364,7 +391,33 @@ namespace Blockchain {
         blockchain.votes = totalVotes;
     }
 
-};
+    void sendBlockchainToPeerNodes(Blockchain& blockchain) {
+        http_client::HttpClient client;
+        http::HttpRequest request_;
+        http::URI uri;
+        int _port = 8080;
+        std::string content,host;
+
+        uri.setPath("/blockchain");
+        uri.setPort(_port);
+        request_.SetUri(uri);
+        request_.SetMethod(http::HttpMethod::POST);
+        content = blockchain.jsonDump();
+        request_.SetContent(content);
+        nlohmann::json nodes = nlohmann::json::parse(blockchain.get_nodes_without_self());
+        std::cout<<content<<std::endl;
+
+        for(int i = 0; i<blockchain.node_length()-1;i++){
+            std::cout<<nodes<<std::endl;
+            host = nodes[i];
+            uri.setHost(host);
+            request_.SetUri(uri);
+            client.sendRequest(request_);
+        }
+
+    }
+
+}
 
 //
 #endif //MATADAAN_BLOCKCHAIN_HPP
