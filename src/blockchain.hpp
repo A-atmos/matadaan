@@ -13,6 +13,7 @@
 #include <string>
 #include <memory>
 #include <thread>
+#include <fstream>
 
 #include "../lib/json.hpp"
 
@@ -46,6 +47,7 @@ namespace Blockchain {
 
 
         std::vector<std::pair<std::string, int>> getTotalVotes();
+        void saveTotalVotes(std::string);
 
         void update_nodes();
 
@@ -414,6 +416,32 @@ namespace Blockchain {
             request_.SetUri(uri);
             client.sendRequest(request_);
         }
+
+    }
+
+    void Blockchain::saveTotalVotes(std::string fileName = "votes.json") {
+        nlohmann::json content;
+        std::string content_;
+        std::fstream file;
+
+        auto total_votes = getTotalVotes();
+
+        for(int i = 0 ; i <total_votes.size();i++){
+            content["votes"][total_votes[i].first] = total_votes[i].second;
+        }
+
+        content["candidates"] = total_votes.size();
+
+        content_ = content.dump(0);
+
+        file.open(fileName,std::ios::out);
+
+        file<<content_;
+        file.close();
+
+        file.open("blockchain.json",std::ios::out);
+        file<<jsonDump();
+        file.close();
 
     }
 
