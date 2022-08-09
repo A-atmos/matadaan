@@ -125,7 +125,7 @@ USER::User Enter::loggedUser() {
 
     for(int i = 0; i<user.size(); i++){
         // std::cout<<user[i].id()<<":"<<user[i].password()<<std::endl;
-        if(user[i].id() == usernameTextbox.get_text() && user[i].password() == passwordTextbox.get_text()){
+        if(user[i].id() == usernameTextbox.get_text() && user[i].password() == hash::sha256(passwordTextbox.get_text())){
             return user[i];
         }
     }
