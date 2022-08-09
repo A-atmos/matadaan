@@ -24,24 +24,37 @@ int init_server(Blockchain::Blockchain& blockchain){
         // which includes the host address in the content
         std::string host_,nodes_,content_;
         nlohmann::json content;
-
-        host_ = request.content();
-
+        http::HttpResponse response;
         // add the node which is in the request content to the blockchain
         // and get all the nodes in the chain and send it as an response
+        if(to_string(request.method()) == "GET" ){
+            nodes_ = blockchain.get_nodes();
 
-        if(!host_.empty() ) {
-            blockchain.add_node(host_);
+            content["length"] = blockchain.node_length() ;
+            content["nodes"] = nodes_;
+            content_ = content.dump(-1);
+
+            response.SetHeader("Content-Type", "application/json");
+            response.SetContent(content_);
+            response.SetStatusCode(http::HttpStatusCode::Ok);
         }
-        nodes_ = blockchain.get_nodes();
+        else if(to_string(request.method()) == "POST"){
+            host_ = request.content();
+            blockchain.add_node(host_);
 
-        content["length"] = blockchain.node_length() ;
-        content["nodes"] = nodes_;
-        content_ = content.dump(-1);
+            nodes_ = blockchain.get_nodes();
 
-        http::HttpResponse response(http::HttpStatusCode::Created);
-        response.SetHeader("Content-Type", "application/json");
-        response.SetContent(content_);
+            content["length"] = blockchain.node_length() ;
+            content["nodes"] = nodes_;
+            content_ = content.dump(-1);
+
+            response.SetHeader("Content-Type", "application/json");
+            response.SetContent(content_);
+            response.SetStatusCode(http::HttpStatusCode::Created);
+        }
+        else{
+            response.SetStatusCode(http::HttpStatusCode::InternalServerError);
+        }
         return response;
     };
 
@@ -98,10 +111,14 @@ int init_server(Blockchain::Blockchain& blockchain){
 
     server.RegisterHttpRequestHandler("/", http::HttpMethod::HEAD, index);
     server.RegisterHttpRequestHandler("/", http::HttpMethod::GET, index);
+
     server.RegisterHttpRequestHandler("/nodes", http::HttpMethod::HEAD, add_nodes);
     server.RegisterHttpRequestHandler("/nodes", http::HttpMethod::GET, add_nodes);
+    server.RegisterHttpRequestHandler("/nodes", http::HttpMethod::POST, add_nodes);
+
     server.RegisterHttpRequestHandler("/votes", http::HttpMethod::HEAD, total_votes);
     server.RegisterHttpRequestHandler("/votes", http::HttpMethod::GET, total_votes);
+
     server.RegisterHttpRequestHandler("/blockchain", http::HttpMethod::HEAD, full_data);
     server.RegisterHttpRequestHandler("/blockchain", http::HttpMethod::GET, full_data);
     server.RegisterHttpRequestHandler("/blockchain", http::HttpMethod::POST, full_data);
@@ -156,6 +173,8 @@ int GUI(Blockchain::Blockchain& blockchain) {
         }
         else{
             // if superuser spawn superuser screen
+            SuperUser Sudo;
+            Gtk::Main::run(Sudo);
             enter.running = false;
         }
 
@@ -168,7 +187,7 @@ int GUI(Blockchain::Blockchain& blockchain) {
 
 int main(){
 
-    Blockchain::Blockchain blockchain(0);
+    Blockchain::Blockchain blockchain(networkUtils::getTunnelAddress(),0);
 
     std::thread thread1(init_server,std::ref(blockchain));
 //    std::thread thread2(ask_input,std::ref(blockchain));

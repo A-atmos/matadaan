@@ -13,6 +13,7 @@
 #include "src/blockchain.hpp"
 
 #include "graphics/graphics.hpp"
+#include "src/graphics/superUserWindow.hpp"
 #include "src/userModel.hpp"
 
 #include <thread>
