@@ -62,17 +62,6 @@ namespace USER {
         fout.close();
     }
 
-    void input_data(std::string filename) {
-        std::string line;
-        std::ofstream fout(filename.c_str(), std::ios::app);
-        while (fout) {
-            getline(std::cin, line);
-            if (line == "q")
-                break;
-            fout << line << ",";
-        }
-        fout.close();
-    }
 
     std::vector <User> loadData(std::string fileName) {
         std::string line;
@@ -130,7 +119,7 @@ namespace CANDIDATE{
 
     public:
         candidate(std::string _name, std::string _pathToImage);
-        void save(std::string fileName);
+        friend void save(std::string _name, std::string _path_to_image,std::string fileName);
         friend std::vector<candidate> loadFromFile(std::string fileName);
         std::string getName(){return name;}
         std::string getImagePath(){return pathToImage;}
@@ -169,11 +158,12 @@ namespace CANDIDATE{
 
     }
 
-    void candidate::save(std::string fileName) {
+    void save(std::string _name, std::string _image_name, std::string fileName) {
         std::fstream file;
-        std::string _pathToImage = "candidates/images/"+pathToImage+".png";
+        std::string _pathToImage = "candidates/images/"+_image_name+".png";
         file.open(fileName,std::ios::app);
-        file<<name<<","<<_pathToImage<<std::endl;
+        file<<_name<<","<<_pathToImage<<std::endl;
+        file.close();
     }
 
 
