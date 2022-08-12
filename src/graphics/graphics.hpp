@@ -40,13 +40,21 @@ public:
         scrolledWindow.add(fixed);
 
         //creates textbox for id
-        usernameTextbox.set_text("Enter Citizenship number");
+        label1.set_text("Citizenship No:");
+        fixed.add(label1);
+        fixed.move(label1, 240, 120);
+        label1.set_size_request(10, 10);
+        usernameTextbox.set_text("");
         fixed.add(usernameTextbox);
         fixed.move(usernameTextbox, 240, 150);
         usernameTextbox.set_size_request(50,10);
 
         //creates textbox for password
-        passwordTextbox.set_text("Password");
+        label2.set_text("Password:");
+        fixed.add(label2);
+        fixed.move(label2, 240, 180);
+        label2.set_size_request(10, 10);
+        passwordTextbox.set_text("");
         fixed.add(passwordTextbox);
         fixed.move(passwordTextbox, 240, 200);
         passwordTextbox.set_size_request(170,10);
@@ -89,6 +97,7 @@ private:
 
     Gtk::ScrolledWindow scrolledWindow;
     Gtk::Fixed fixed;
+    Gtk::Label labe1, label2;
     Gtk::Entry usernameTextbox;
     Gtk::Entry passwordTextbox;
     Gtk::Button loginButton;
