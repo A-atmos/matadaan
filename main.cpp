@@ -173,6 +173,8 @@ int GUI(Blockchain::Blockchain& blockchain) {
                 Gtk::Main::run(Sudo);
                 if(Sudo.exit){
                     enter.running = false;
+                    Blockchain::getVotesInBlockchain(blockchain);
+                    blockchain.saveTotalVotes();
                 }
                 else{
                     enter.running = true;

@@ -33,7 +33,7 @@ public:
 
     Enter(Blockchain::Blockchain& _blockchain){
         // loads the user data from file and make it the vector of users
-        user=USER::loadData("/home/ac/CLionProjects/matadaan/data.test");
+        user=USER::loadData("user.txt");
         blockchain = _blockchain.toJson();
 
         add(scrolledWindow);                //adds window
@@ -134,7 +134,7 @@ USER::User Enter::loggedUser() {
 
     for(int i = 0; i<user.size(); i++){
         // std::cout<<user[i].id()<<":"<<user[i].password()<<std::endl;
-        if(user[i].id() == usernameTextbox.get_text() && user[i].password() == passwordTextbox.get_text()){
+        if(user[i].id() == usernameTextbox.get_text() && user[i].password() == hash::sha256(passwordTextbox.get_text())){
             return user[i];
         }
     }

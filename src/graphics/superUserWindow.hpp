@@ -85,7 +85,6 @@ SuperUser::SuperUser(USER::User _user, Blockchain::Blockchain &blockchain)
     fixed7.add(label7);
     fixed7.move(label7, 740, 100);
     label7.set_size_request(400, 20);
-    label7.override_background_color(Gdk::RGBA("#D3D3D3"));
 
     label8.set_text("Node:");
     fixed7.add(label8);
@@ -135,7 +134,7 @@ SuperUser::SuperUser(USER::User _user, Blockchain::Blockchain &blockchain)
     fixed2.move(CandidateTextbox, 740, 400);
     CandidateTextbox.set_size_request(400, 10);
 
-    label3.set_text("Path For Election Symbol:"); // adding the label
+    label3.set_text("Election Symbol:"); // adding the label
     fixed2.add(label3);
     fixed2.move(label3, 740, 450);
     label3.set_size_request(10, 10);
@@ -208,14 +207,27 @@ SuperUser::SuperUser(USER::User _user, Blockchain::Blockchain &blockchain)
 
 void SuperUser::on_addbutton_clicked(Blockchain::Blockchain &blockchain)
 {
-    //    ResultTextbox1
-    blockchain.add_node(ResultTextbox1.get_text());
-    Gtk::MessageDialog dialog(*this, "Added Node:" + ResultTextbox1.get_text(), true, Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_OK, true);
 
-    dialog.set_title("Node Added");
-    dialog.set_modal();
-    dialog.set_size_request(100, 20);
-    dialog.set_position(Gtk::WindowPosition::WIN_POS_CENTER);
+    Gtk::MessageDialog dialog(*this, "Added Node:" + ResultTextbox1.get_text(), true, Gtk::MESSAGE_QUESTION,
+                              Gtk::BUTTONS_OK, true);
+    //    ResultTextbox1
+    try {
+        blockchain.add_node(ResultTextbox1.get_text());
+
+        dialog.set_title("Added Node:" + ResultTextbox1.get_text());
+        dialog.set_message("Added Node:");
+        dialog.set_modal();
+        dialog.set_size_request(100, 20);
+        dialog.set_position(Gtk::WindowPosition::WIN_POS_CENTER);
+    }
+    catch(std::exception){
+        dialog.set_title("Error Adding Node");
+        dialog.set_message("Node Error");
+        dialog.set_modal();
+        dialog.set_size_request(100, 20);
+        dialog.set_position(Gtk::WindowPosition::WIN_POS_CENTER);
+    }
+
     if (dialog.run() == Gtk::RESPONSE_OK)
         show();
 }
@@ -235,7 +247,15 @@ void SuperUser::on_RegisteruserButton_clicked()
 
 void SuperUser::on_RegisterpartyButton_clicked()
 {
-    std::cout << "Registered Candidate" << std::endl;
+    CANDIDATE::save(CandidateTextbox.get_text(),PartyNameTextbox.get_text());
+    Gtk::MessageDialog dialog(*this, "Added Candidate:" + CandidateTextbox.get_text(), true, Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_OK, true);
+
+    dialog.set_title("Candidate Added");
+    dialog.set_modal();
+    dialog.set_size_request(100, 20);
+    dialog.set_position(Gtk::WindowPosition::WIN_POS_CENTER);
+    if (dialog.run() == Gtk::RESPONSE_OK)
+        show();
 }
 
 void SuperUser::on_click_logout()
