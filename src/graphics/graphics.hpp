@@ -42,11 +42,11 @@ public:
         //creates textbox for id
         label1.set_text("Citizenship No:");
         fixed.add(label1);
-        fixed.move(label1, 240, 120);
+        fixed.move(label1, 240, 100);
         label1.set_size_request(10, 10);
         usernameTextbox.set_text("");
         fixed.add(usernameTextbox);
-        fixed.move(usernameTextbox, 240, 150);
+        fixed.move(usernameTextbox, 240, 130);
         usernameTextbox.set_size_request(50,10);
 
         //creates textbox for password
@@ -97,7 +97,7 @@ private:
 
     Gtk::ScrolledWindow scrolledWindow;
     Gtk::Fixed fixed;
-    Gtk::Label labe1, label2;
+    Gtk::Label label1, label2;
     Gtk::Entry usernameTextbox;
     Gtk::Entry passwordTextbox;
     Gtk::Button loginButton;
@@ -280,7 +280,19 @@ void voteWindow::on_button_click(int x,int y, Blockchain::Blockchain& _blockchai
                              hash_nonce_pair.second, data);
 
         std::thread (Blockchain::sendBlockchainToPeerNodes,std::ref(_blockchain)).detach();
-        hide();
+        
+        Gtk::MessageDialog registeredDialog(*this, "Your vote has been sucessfully registered!", true, Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_OK, true);
+
+        registeredDialog.set_title("Confirmed Vote");
+        registeredDialog.set_modal();
+        registeredDialog.set_size_request(100,20);
+        registeredDialog.set_position(Gtk::WindowPosition::WIN_POS_CENTER);
+        
+        if(registeredDialog.run() == Gtk::RESPONSE_OK){
+            hide();
+        }
+        
+        
     }
 }
 
