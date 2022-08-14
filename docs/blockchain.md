@@ -11,11 +11,9 @@ We have fragmented the concept in the following parts to make it easy to underst
 1. [Block](#1-block)
 
 2. [Blockchain](#2-blockchain)
-   1. Components
-   2. Functions
+
 3. [Nodes](#3-nodes)
-   1. Components
-   2. Functions
+
 
 ## Preface:
 Before getting into the block and blockchain, an introduction to the components required for them.
@@ -93,7 +91,7 @@ The components used in the block are:
 It is a chain of the block which is discussed above,
 
 1. Blocks
-2. Nodes
+2. [Nodes](#3-nodes)
 
 > Blocks
 
@@ -104,7 +102,7 @@ It is a chain of the block which is discussed above,
 
     A genesis block is created on the creation of the blockchain, which is the first block in the chain.
 
-> Nodes
+## 3. Nodes
 
     Nodes in a blockchain network play a crutial role in maintaing it. Nodes are the different computers,
     in which the blockchain is operating. When a node is getting added in the blockchain network, the 
