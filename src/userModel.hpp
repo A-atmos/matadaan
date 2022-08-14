@@ -41,6 +41,7 @@ namespace USER {
         bool alreadyVoted(nlohmann::json blockchain);
 
 
+
         friend std::vector <User> loadData(std::string fileName);
         friend void saveUser(const std::string& _username,std::string _password,bool superuser,std::string filename);
 
@@ -56,10 +57,26 @@ namespace USER {
     };
 
 
-    void saveUser(const std::string& _username,std::string _password,bool superuser=false,std::string filename="user.txt"){
-        std::ofstream fout(filename.c_str(),std::ios::app);
-        fout<<std::endl<<_username<<","<<hash::sha256(std::move(_password))<<","<<superuser;
-        fout.close();
+    bool fileExists(std::string basicString);
+
+    void saveUser(const std::string& _username, std::string _password, bool superuser=false, std::string filename="user.txt"){
+        if(fileExists(filename)) {
+
+            std::ofstream fout(filename.c_str(), std::ios::app);
+            fout << std::endl << _username << "," << hash::sha256(std::move(_password)) << "," << superuser;
+            fout.close();
+        }
+        else{
+            std::ofstream fout(filename.c_str(), std::ios::app);
+            fout << _username << "," << hash::sha256(std::move(_password)) << "," << superuser;
+            fout.close();
+        }
+    }
+
+    bool fileExists(std::string PATH) {
+        std::ifstream fin;
+        fin.open(PATH.c_str());
+        return bool(fin);
     }
 
 
@@ -74,8 +91,11 @@ namespace USER {
         file.open(fileName.c_str(), std::ios::in);
 
         if (!file) {
-            std::cerr << "Data Load Error";
+            saveUser("admin","admin",1,fileName);
+            file.close();
+            file.open(fileName.c_str(), std::ios::in);
         }
+
         while (!file.eof()) {
             getline(file, line, '\n');
             std::stringstream ss(line);
@@ -108,6 +128,7 @@ namespace USER {
         return false;
     }
 
+
 }
 
 
@@ -138,7 +159,7 @@ namespace CANDIDATE{
         file.open(fileName,std::ios::in);
 
         if (!file) {
-            std::cerr << "Data Load Error";
+            throw "Data Load Error";
         }
         while (!file.eof()) {
             getline(file, line, '\n');
@@ -159,12 +180,23 @@ namespace CANDIDATE{
     }
 
     void save(std::string _name, std::string _image_name, std::string fileName="candidates/candidates.txt") {
-        std::fstream file;
-        std::string _pathToImage = "candidates/images/"+_image_name+".png";
-        file.open(fileName,std::ios::app);
-        file<<std::endl<<_name<<","<<_pathToImage;
-        file.close();
+        if(USER::fileExists(fileName)) {
+            std::fstream file;
+            std::string _pathToImage = "candidates/images/" + _image_name + ".png";
+            file.open(fileName, std::ios::app);
+            file << std::endl << _name << "," << _pathToImage;
+            file.close();
+        }
+        else{
+            std::fstream file;
+            std::string _pathToImage = "candidates/images/" + _image_name + ".png";
+            file.open(fileName, std::ios::app);
+            file << _name << "," << _pathToImage;
+            file.close();
+        }
     }
+
+
 
 
 }
