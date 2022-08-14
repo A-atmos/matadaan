@@ -33,62 +33,50 @@ public:
 
     Enter(Blockchain::Blockchain& _blockchain){
         // loads the user data from file and make it the vector of users
-        try {
-            user = USER::loadData("user.txt");
-            blockchain = _blockchain.toJson();
 
-            add(scrolledWindow);                //adds window
-            scrolledWindow.add(fixed);
+        user = USER::loadData("user.txt");
+        blockchain = _blockchain.toJson();
 
-            //creates textbox for id
-            label1.set_text("Citizenship No:");
-            fixed.add(label1);
-            fixed.move(label1, 240, 100);
-            label1.set_size_request(10, 10);
-            usernameTextbox.set_text("");
-            fixed.add(usernameTextbox);
-            fixed.move(usernameTextbox, 240, 130);
-            usernameTextbox.set_size_request(50, 10);
+        add(scrolledWindow);                //adds window
+        scrolledWindow.add(fixed);
 
-            //creates textbox for password
-            label2.set_text("Password:");
-            fixed.add(label2);
-            fixed.move(label2, 240, 180);
-            label2.set_size_request(10, 10);
-            passwordTextbox.set_text("");
-            fixed.add(passwordTextbox);
-            fixed.move(passwordTextbox, 240, 200);
-            passwordTextbox.set_size_request(170, 10);
+        //creates textbox for id
+        label1.set_text("Citizenship No:");
+        fixed.add(label1);
+        fixed.move(label1, 240, 100);
+        label1.set_size_request(10, 10);
+        usernameTextbox.set_text("");
+        fixed.add(usernameTextbox);
+        fixed.move(usernameTextbox, 240, 130);
+        usernameTextbox.set_size_request(50, 10);
+
+        //creates textbox for password
+        label2.set_text("Password:");
+        fixed.add(label2);
+        fixed.move(label2, 240, 180);
+        label2.set_size_request(10, 10);
+        passwordTextbox.set_text("");
+        fixed.add(passwordTextbox);
+        fixed.move(passwordTextbox, 240, 200);
+        passwordTextbox.set_size_request(170, 10);
 
 
 
-            //creates login button
-            loginButton.set_label("Log In");
-            fixed.add(loginButton);
-            fixed.move(loginButton, 280, 250);
-            loginButton.set_size_request(10, 10);
+        //creates login button
+        loginButton.set_label("Log In");
+        fixed.add(loginButton);
+        fixed.move(loginButton, 280, 250);
+        loginButton.set_size_request(10, 10);
 
-            loginButton.signal_clicked().connect(sigc::mem_fun(*this,
-                                                               &Enter::on_button_clicked));//calls on_button_clicked function if login button is clicked
+        loginButton.signal_clicked().connect(sigc::mem_fun(*this,
+                                                           &Enter::on_button_clicked));//calls on_button_clicked function if login button is clicked
 
-            set_title("Matadaan Garau,Desh Banau");       //sets window title
-            move(320, 200);
-            resize(640, 480);
+        set_title("D-Voting Application");       //sets window title
+        move(320, 200);
+        resize(640, 480);
 
-            show_all();
-        }
-        catch(...){
-            Gtk::MessageDialog dialog(*this, "Error: Please Check if there is a users list!", true, Gtk::MESSAGE_ERROR, Gtk::BUTTONS_CLOSE, true);
+        show_all();
 
-            dialog.set_title("Error");
-            dialog.set_modal();
-            dialog.set_size_request(100,20);
-            dialog.set_position(Gtk::WindowPosition::WIN_POS_CENTER);
-            if(dialog.run() == Gtk::RESPONSE_CLOSE){
-                hide();
-                exit(1);
-            }
-        }
     }
 
     //asks if u wanna exit

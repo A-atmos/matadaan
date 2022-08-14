@@ -91,8 +91,11 @@ namespace USER {
         file.open(fileName.c_str(), std::ios::in);
 
         if (!file) {
-            throw "Data Load Error";
+            saveUser("admin","admin",1,fileName);
+            file.close();
+            file.open(fileName.c_str(), std::ios::in);
         }
+
         while (!file.eof()) {
             getline(file, line, '\n');
             std::stringstream ss(line);
