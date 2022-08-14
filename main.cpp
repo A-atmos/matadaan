@@ -162,8 +162,13 @@ int GUI(Blockchain::Blockchain& blockchain) {
             if(!enter.loggedUser().is_superuser()) {
                 std::cout << enter.loggedUser().id() << ":" << enter.loggedUser().password() << std::endl;
                 auto app = Gtk::Application::create("voterScreen");
-                voteWindow win(enter.loggedUser(), blockchain);
-                app->run(win);
+                auto* win = new voteWindow(enter.loggedUser(), blockchain);
+
+                app->run(*win);
+
+                app->remove_window(*win);
+                delete win;
+
                 enter.loggedIn = false;
                 enter.running = true;
             }
