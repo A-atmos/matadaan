@@ -54,4 +54,4 @@ The third and final tab of superuser screen is settings tab. This tab consists o
 
 Finally there is also the logout button present in settings tab and its fuction is to allow the superuser to logout from superuser screen that brings the login page again.
 
-![](images/GraphicsFlowchart.png)
+![](images/graphics_flowchart.png)
