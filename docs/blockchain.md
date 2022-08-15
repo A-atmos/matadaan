@@ -126,4 +126,5 @@ Detailed explanation on how the blockchain network is established in this projec
 ## References:
 
 1. [Bitcoin : A Peer-to-Peer Electronic Cash System (Satoshi Nakamoto)](https://bitcoin.org/bitcoin.pdf)
-2. 
+2. [Blockchain Interfaced Sacure E-Voting System (shrestha et. al)](https://www.researchgate.net/publication/339305141)
+    *Article  in  Journal of the Institute of Engineering · February 2020*
