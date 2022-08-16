@@ -181,12 +181,14 @@ void Enter::loginError(std::string errorMessage) {
 
 class voteWindow: public Gtk::Window{
 public:
+    const int h_elements = 6;
     voteWindow(USER::User _user, Blockchain::Blockchain& _blockchain);
     virtual ~voteWindow();
 
 protected:
     void on_button_click(int,int, Blockchain::Blockchain& _blockchain);
 private:
+    Gtk::ScrolledWindow scrolledWindow;
     std::vector<Gtk::Button*> board;
     USER::User currentUser;
     std::vector<CANDIDATE::candidate> candidates;
@@ -195,14 +197,17 @@ private:
 
 voteWindow::voteWindow(USER::User _user,Blockchain::Blockchain& _blockchain) {
 
+    this->fullscreen();
+
     try {
+        add(scrolledWindow);
         currentUser = _user;
         candidates = CANDIDATE::loadFromFile();
-        this->fullscreen();
+//        this->fullscreen();
         set_title("Please Vote to your favourite candidate!");
 
         Gtk::Box *vbox = Gtk::manage(new Gtk::VBox);
-        add(*vbox);
+        scrolledWindow.add(*vbox);
 
 
         auto msg = Gtk::manage(new Gtk::Label("Federal Elections of Nepal - 2080"));
@@ -220,7 +225,7 @@ voteWindow::voteWindow(USER::User _user,Blockchain::Blockchain& _blockchain) {
         vbox->add(*msg);
 
 
-        int height = candidates.size() / 8;
+        int height = candidates.size() / h_elements;
         height++;
 
         int h_pos = 0;
@@ -231,15 +236,15 @@ voteWindow::voteWindow(USER::User _user,Blockchain::Blockchain& _blockchain) {
             Gtk::HBox *hbox = Gtk::manage(new Gtk::HBox);
             hbox->set_hexpand(true);
 
-            while (!(h_pos == 8 || i * 8 + h_pos == candidates.size())) {
+            while (!(h_pos == h_elements || i * h_elements + h_pos == candidates.size())) {
                 Gtk::Image *image;
-                image = Gtk::manage(new Gtk::Image{candidates[i * 8 + h_pos].getImagePath()});
+                image = Gtk::manage(new Gtk::Image{candidates[i * h_elements + h_pos].getImagePath()});
                 // image->property_width_request(100);
                 // image->property_height_request(100);
 
                 auto position = Gtk::manage(new Gtk::Button);
                 position->set_image(*image);
-                position->set_label(candidates[i * 8 + h_pos].getName());
+                position->set_label(candidates[i * h_elements + h_pos].getName());
 
 
                 board.push_back(position);
@@ -255,7 +260,7 @@ voteWindow::voteWindow(USER::User _user,Blockchain::Blockchain& _blockchain) {
         }
 
 
-        vbox->show_all();
+        show_all();
 
     }catch(...){
         Gtk::MessageDialog dialog(*this, "Error: Please Check if there is a candidates list!", true, Gtk::MESSAGE_ERROR, Gtk::BUTTONS_CLOSE, true);
@@ -282,10 +287,10 @@ void voteWindow::on_button_click(int x,int y, Blockchain::Blockchain& _blockchai
     if (dialog.run() == Gtk::RESPONSE_YES) {
 
         std::vector<std::string> data;
-        std::cout << currentUser.id() << ":" << hash::sha256(currentUser.id()) << ":" << candidates[x + y * 8].getName()
+        std::cout << currentUser.id() << ":" << hash::sha256(currentUser.id()) << ":" << candidates[x + y * h_elements].getName()
                   << std::endl;
         data.push_back(hash::sha256(currentUser.id()));
-        data.emplace_back(candidates[x + y * 8].getName());
+        data.emplace_back(candidates[x + y * h_elements].getName());
 
         auto hash_nonce_pair = _blockchain.findNewHash(data);
 
