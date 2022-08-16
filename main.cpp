@@ -161,13 +161,9 @@ int GUI(Blockchain::Blockchain& blockchain) {
             //Shows the window and returns when it is closed.
             if(!enter.loggedUser().is_superuser()) {
                 std::cout << enter.loggedUser().id() << ":" << enter.loggedUser().password() << std::endl;
-                auto app = Gtk::Application::create("voterScreen");
-                auto* win = new voteWindow(enter.loggedUser(), blockchain);
 
-                app->run(*win);
-
-                app->remove_window(*win);
-                delete win;
+                voteWindow win(enter.loggedUser(), blockchain);
+                Gtk::Main::run(win);
 
                 enter.loggedIn = false;
                 enter.running = true;
