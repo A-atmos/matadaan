@@ -223,7 +223,9 @@ voteWindow::voteWindow(USER::User _user,Blockchain::Blockchain& _blockchain) {
         msg->set_attributes(list);
 
         vbox->add(*msg);
-
+        auto lab = Gtk::manage(new Gtk::Label(""));
+        lab->set_hexpand(true);
+        vbox->add(*lab);
 
         int height = candidates.size() / h_elements;
         height++;
