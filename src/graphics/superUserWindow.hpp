@@ -32,7 +32,7 @@ private:
     Gtk::Frame S1, S2, S3, S4;
     Gtk::Entry passwordTextbox, CnNoTextbox, PartyNameTextbox, CandidateTextbox, ResultTextbox, ResultTextbox1;
     Gtk::Button RegisteruserButton, RegisterpartyButton, addbutton, Logout;
-    Gtk::Label label1, label2, label3, label4, label5, toplabel, toplabel1, label7, label8;
+    Gtk::Label label1, label2, label3, label4, label5, toplabel, toplabel1, label7, label8, nodeLabel;
 
     bool on_delete_event(GdkEventAny *any_event) override // shows the dialog box while attempting to close window
     {
@@ -53,13 +53,19 @@ private:
 
 SuperUser::SuperUser(USER::User _user, Blockchain::Blockchain &blockchain)
 {
-    this->resize(1920, 1080);
+    GdkRectangle monitor = {0};
+    gdk_monitor_get_workarea(
+            gdk_display_get_primary_monitor(gdk_display_get_default()),
+            &monitor);
+
+    this->resize(monitor.width, monitor.height);
+//    this->fullscreen();
     set_border_width(5);
     add(scrolledWindow);       // scrollwindow is added
     scrolledWindow.add(fixed); // fixed container
 
     fixed.add(Selector); // adding the notebook(selector)
-    Selector.set_size_request(1920, 1080);
+    Selector.set_size_request(monitor.width, monitor.height);
 
     Selector.insert_page(S1, "Add Voter", 0); // S1,S2,S3 are the frame widgets which are added to notebook
     Selector.insert_page(S2, "Add Contender", 1);
@@ -83,29 +89,46 @@ SuperUser::SuperUser(USER::User _user, Blockchain::Blockchain &blockchain)
     label7.set_text("Settings");
     label7.set_attributes(list3);
     fixed7.add(label7);
-    fixed7.move(label7, 740, 100);
+    fixed7.move(label7, ((monitor.width/2)-200), 100);
     label7.set_size_request(400, 20);
+//1920X1080
 
-    label8.set_text("Node:");
+    auto attlistNode = pango_attr_list_new();
+    PangoFontDescription *font_desc_node = pango_font_description_new();
+    pango_font_description_set_size(font_desc_node, 10 * PANGO_SCALE);
+    PangoAttribute *attr4 = pango_attr_font_desc_new(font_desc_node);
+    pango_attr_list_insert(attlistNode, attr4);
+
+    auto nodeAttr = Pango::AttrList(attlistNode);
+
+    nodeLabel.set_text("Node Address: "+networkUtils::getTunnelAddress());
+    nodeLabel.set_attributes(nodeAttr);
+    fixed7.add(nodeLabel);
+    fixed7.move(nodeLabel, ((monitor.width/2)-200), 130);
+    nodeLabel.set_size_request(400, 20);
+
+
+
+    label8.set_text("Add Node:");
     fixed7.add(label8);
-    fixed7.move(label8, 740, 420);
+    fixed7.move(label8, ((monitor.width/2)-200), ((monitor.height/2)-100));
     label8.set_size_request(10, 10);
 
     ResultTextbox1.set_text("");
     fixed7.add(ResultTextbox1); // adds the textbox named "ResultTextbox"
-    fixed7.move(ResultTextbox1, 740, 450);
+    fixed7.move(ResultTextbox1, ((monitor.width/2)-200), ((monitor.height/2)-50));
     ResultTextbox1.set_size_request(400, 10);
 
     Logout.set_label("Logout");
     fixed7.add(Logout);
-    fixed7.move(Logout, 840, 600);
+    fixed7.move(Logout, ((monitor.width/2)-100), ((monitor.height/2)+100));
     Logout.set_size_request(200, 10);
     Logout.signal_clicked().connect([this]
                                     { this->on_click_logout(); });
 
     addbutton.set_label("Add"); // adds the button named "RegisterPartyButton"
     fixed7.add(addbutton);
-    fixed7.move(addbutton, 840, 500);
+    fixed7.move(addbutton, ((monitor.width/2)-100), ((monitor.height/2)+50));
     addbutton.set_size_request(200, 10);
     addbutton.signal_clicked().connect([this, &blockchain]
                                        { this->on_addbutton_clicked(blockchain); });
@@ -121,32 +144,32 @@ SuperUser::SuperUser(USER::User _user, Blockchain::Blockchain &blockchain)
     toplabel.set_text("Add A Candidate");
     toplabel.set_attributes(list1);
     fixed2.add(toplabel);
-    fixed2.move(toplabel, 740, 100);
+    fixed2.move(toplabel, ((monitor.width/2)-200), 100);
     toplabel.set_size_request(400, 20);
 
     label2.set_text("Candidate Name:");
     fixed2.add(label2);
-    fixed2.move(label2, 740, 370);
+    fixed2.move(label2, ((monitor.width/2)-200), ((monitor.height/2)-170));
     label2.set_size_request(10, 10);
 
     CandidateTextbox.set_text("");
     fixed2.add(CandidateTextbox); // adds the textbox named "CandidateTextbox"
-    fixed2.move(CandidateTextbox, 740, 400);
+    fixed2.move(CandidateTextbox, ((monitor.width/2)-200), ((monitor.height/2)-130));
     CandidateTextbox.set_size_request(400, 10);
 
     label3.set_text("Election Symbol:"); // adding the label
     fixed2.add(label3);
-    fixed2.move(label3, 740, 450);
+    fixed2.move(label3, ((monitor.width/2)-200), ((monitor.height/2)-80));
     label3.set_size_request(10, 10);
 
     PartyNameTextbox.set_text("");
     fixed2.add(PartyNameTextbox); // adds the textbox named "ResultTextbox"
-    fixed2.move(PartyNameTextbox, 740, 480);
+    fixed2.move(PartyNameTextbox, ((monitor.width/2)-200), ((monitor.height/2)-50));
     PartyNameTextbox.set_size_request(400, 10);
 
     RegisterpartyButton.set_label("Register"); // adds the button named "RegisterPartyButton"
     fixed2.add(RegisterpartyButton);
-    fixed2.move(RegisterpartyButton, 840, 530);
+    fixed2.move(RegisterpartyButton, ((monitor.width/2)-100), ((monitor.height/2)+50));
     RegisterpartyButton.set_size_request(200, 10);
     RegisterpartyButton.signal_clicked().connect(sigc::mem_fun(*this, &SuperUser::on_RegisterpartyButton_clicked));
     // connects the button
@@ -160,32 +183,32 @@ SuperUser::SuperUser(USER::User _user, Blockchain::Blockchain &blockchain)
     toplabel1.set_attributes(list1);
     toplabel1.set_text("Add A Voter");
     fixed1.add(toplabel1);
-    fixed1.move(toplabel1, 740, 100);
+    fixed1.move(toplabel1, ((monitor.width/2)-200), 100);
     toplabel1.set_size_request(400, 20);
 
     label5.set_text("Citizenship No:");
     fixed1.add(label5);
-    fixed1.move(label5, 740, 370);
+    fixed1.move(label5, ((monitor.width/2)-200), ((monitor.height/2)-170));
     label5.set_size_request(10, 10);
 
     CnNoTextbox.set_text("");
     fixed1.add(CnNoTextbox); // adds the textbox named "CnNoTextbox"
-    fixed1.move(CnNoTextbox, 740, 400);
+    fixed1.move(CnNoTextbox, ((monitor.width/2)-200), ((monitor.height/2)-130));
     CnNoTextbox.set_size_request(400, 10);
 
     label4.set_text("Password:");
     fixed1.add(label4);
-    fixed1.move(label4, 740, 450);
+    fixed1.move(label4, ((monitor.width/2)-200), ((monitor.height/2)-80));
     label4.set_size_request(10, 10);
 
     passwordTextbox.set_text("");
     fixed1.add(passwordTextbox); // adds the textbox named "passwordTextbox"
-    fixed1.move(passwordTextbox, 740, 480);
+    fixed1.move(passwordTextbox, ((monitor.width/2)-200), ((monitor.height/2)-50));
     passwordTextbox.set_size_request(400, 10);
 
     RegisteruserButton.set_label("Register");
     fixed1.add(RegisteruserButton); // adds the button named "RegisterUserButton"
-    fixed1.move(RegisteruserButton, 840, 530);
+    fixed1.move(RegisteruserButton, ((monitor.width/2)-100), ((monitor.height/2)+50));
     RegisteruserButton.set_size_request(200, 10);
     //[this,&blockchain] {this->on_RegisteruserButton_clicked(blockchain);}
     RegisteruserButton.signal_clicked().connect([this]
