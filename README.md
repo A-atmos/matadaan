@@ -2,6 +2,7 @@
 
 > A PoC of Blockchain Technology
 
+***Due to the epoll and socket programming used in this project, it can only be run on Linux systems.***
 
 ## Initialization:
 
