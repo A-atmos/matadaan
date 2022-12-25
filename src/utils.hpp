@@ -155,32 +155,42 @@ namespace voteUtils{
         return false;
     }
 };
+namespace networkUtils {
+    class network {
+    private:
+        static std::string net0;
+    public:
+        network(){}
+        explicit network(const std::string& name) {
+            int fd;
+            struct ifreq ifr;
 
-namespace networkUtils{
-    std::string getTunnelAddress(){
-        int fd;
-        struct ifreq ifr;
+            fd = socket(AF_INET, SOCK_DGRAM, 0);
 
-        fd = socket(AF_INET, SOCK_DGRAM, 0);
+            /* I want to get an IPv4 IP address */
+            ifr.ifr_addr.sa_family = AF_INET;
+            /* I want IP address attached to "eth0" */
+            strncpy(ifr.ifr_name, name.c_str(), IFNAMSIZ - 1);
+            ioctl(fd, SIOCGIFADDR, &ifr);
+            close(fd);
 
-        /* I want to get an IPv4 IP address */
-        ifr.ifr_addr.sa_family = AF_INET;
-        /* I want IP address attached to "eth0" */
-        strncpy(ifr.ifr_name, "wlan0", IFNAMSIZ-1);
-        ioctl(fd, SIOCGIFADDR, &ifr);
-        close(fd);
+            /* display result */
+            printf("%s\n", inet_ntoa(((struct sockaddr_in *) &ifr.ifr_addr)->sin_addr));
 
-        /* display result */
-        printf("%s\n", inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr));
+            const std::string tun0(inet_ntoa(((struct sockaddr_in *) &ifr.ifr_addr)->sin_addr));
+            net0=tun0;
+        }
 
-        std::string tun0 = inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr);
-
-        return tun0;
-
+        static std::string getTunnelAddress();
+    };
+    std::string network::net0;
+    std::string network::getTunnelAddress() {
+        return network::net0;
     }
 
-}
 
+
+}
 
 
 #endif //MATADAAN_UTILS_HPP

@@ -6,8 +6,8 @@
 #define PORT 8080
 
 int init_server(Blockchain::Blockchain& blockchain){
-
-    std::string host = networkUtils::getTunnelAddress();
+    networkUtils::network net0;
+    std::string host = networkUtils::network::getTunnelAddress();
     int port = PORT;
     http_server::HttpServer server(host, port);
 
@@ -192,8 +192,11 @@ int GUI(Blockchain::Blockchain& blockchain) {
 }
 
 int main(){
-
-    Blockchain::Blockchain blockchain(networkUtils::getTunnelAddress(),0);
+    std::string name;
+    std::cout<<"Enter the name of the NetworkCard"<<std::endl;
+    std::cin>>name;
+    networkUtils::network net0(name);
+    Blockchain::Blockchain blockchain(networkUtils::network::getTunnelAddress(),0);
 
     std::thread thread1(init_server,std::ref(blockchain));
 //    std::thread thread2(ask_input,std::ref(blockchain));

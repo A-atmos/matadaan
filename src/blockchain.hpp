@@ -283,7 +283,7 @@ namespace Blockchain {
             this->nodes.push_back(node_);
         }
 
-        if(node_!=networkUtils::getTunnelAddress()){
+        if(node_!=networkUtils::network::getTunnelAddress()){
 
             //update blockchain
             http_client::HttpClient client;

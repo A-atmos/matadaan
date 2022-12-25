@@ -101,7 +101,7 @@ SuperUser::SuperUser(USER::User _user, Blockchain::Blockchain &blockchain)
 
     auto nodeAttr = Pango::AttrList(attlistNode);
 
-    nodeLabel.set_text("Node Address: "+networkUtils::getTunnelAddress());
+    nodeLabel.set_text("Node Address: "+networkUtils::network::getTunnelAddress());
     nodeLabel.set_attributes(nodeAttr);
     fixed7.add(nodeLabel);
     fixed7.move(nodeLabel, ((monitor.width/2)-200), 130);
