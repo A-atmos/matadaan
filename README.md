@@ -6,8 +6,8 @@
 
 ## Initialization:
 
-This is a project focused on the concepts of `Object Oriented Programming` in C++, and is according to the syllabus of [IOE, TU](https://ioe.edu.np/).
-It uses the concepts of OOP in C++, BlockChain Technology and the general concept of Voting System.
+
+`matadaan` is a decentralized voting system build from scratch using C++. It uses the concepts of OOP in C++, BlockChain Technology and the general concept of Voting System.
 
 *Preferred IDE: **CLion*** 
 
@@ -32,5 +32,5 @@ make
 
 ## External Libraries Used:
 - [openssl](https://github.com/openssl/openssl) for hashing
-- [gtkmm](http://www.gtkmm.org/en/documentation.html) for GUI
+- [qt](http://www.qt.io/) for GUI
 - [json.hpp](https://github.com/nlohmann/json) for processing json data for the REST API
